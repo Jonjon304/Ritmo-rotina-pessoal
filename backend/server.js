@@ -11,7 +11,7 @@ app.use(express.json())
 app.use('/api/tarefas', tarefasRoute)
 
 app.get('/', (req, res) => {
-  res.json({ mensagem: 'API do Cronograma rodando!' })
+  res.json({ mensagem: 'API MyFinance no AR: Developer: JhonJhon.....' })
 })
 
 app.listen(PORT, () => {
