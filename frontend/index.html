@@ -6,17 +6,250 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+  <!-- Header -->
   <header>
-    <h1 id="data-hoje"></h1>
-    <p id="resumo"></p>
+    <div class="header">
+  <div class="logo">
+    <div class="logo-icon">📅</div>
+    <span class="logo-text">Planify</span>
+  </div>
+  <div class="header-center">
+    <button class="tab-btn active">Lista</button>
+    <button class="tab-btn">Calendário</button>
+    <button class="tab-btn">Kanban</button>
+  </div>
+  <div class="header-right">
+    <div class="avatar">VN</div>
+    <button class="btn-new" onclick="focusAdd()">+ Nova Tarefa</button>
+  </div>
+</div>
   </header>
 
   <main>
-    <div id="lista-tarefas"></div>
-    <button id="btn-adicionar">+ Nova tarefa</button>
+    <div class="main">
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card purple">
+      <div class="stat-icon purple">📋</div>
+      <div class="stat-num purple" id="s-total">7</div>
+      <div class="stat-label">Tarefas totais</div>
+    </div>
+    <div class="stat-card teal">
+      <div class="stat-icon teal">✅</div>
+      <div class="stat-num teal" id="s-done">2</div>
+      <div class="stat-label">Concluídas</div>
+    </div>
+    <div class="stat-card pink">
+      <div class="stat-icon pink">⏳</div>
+      <div class="stat-num pink" id="s-pending">5</div>
+      <div class="stat-label">Pendentes</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon orange">🔥</div>
+      <div class="stat-num orange">2</div>
+      <div class="stat-label">Urgentes</div>
+    </div>
+  </div>
+
+  <!-- Global progress -->
+  <div class="global-progress">
+    <div class="progress-info">
+      <h3>Progresso da semana</h3>
+      <div class="progress-bar">
+        <div class="progress-bar-fill" id="prog-bar" style="width:28%"></div>
+      </div>
+    </div>
+    <div class="progress-pct" id="prog-pct">28%</div>
+  </div>
+
+  <!-- Content -->
+  <div class="content-row">
+    <!-- Task list -->
+    <div class="task-panel">
+      <div class="panel-header">
+        <h3>Tarefas da semana</h3>
+        <span id="subtitle">2 de 7 concluídas</span>
+      </div>
+      <div class="task-list" id="task-list">
+
+        <div class="task-item done" id="t0">
+          <div class="check-circle done" onclick="toggle(0)">✓</div>
+          <div class="task-body">
+            <div class="task-text">Reunião com equipe de design</div>
+            <div class="task-meta">
+              <span class="task-date-badge">Seg 24</span>
+              <span class="chip chip-purple">Trabalho</span>
+              <div class="priority-dot dot-high"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-item done" id="t1">
+          <div class="check-circle done" onclick="toggle(1)">✓</div>
+          <div class="task-body">
+            <div class="task-text">Enviar relatório mensal</div>
+            <div class="task-meta">
+              <span class="task-date-badge">Ter 25</span>
+              <span class="chip chip-purple">Trabalho</span>
+              <span class="chip chip-pink">Urgente</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t2">
+          <div class="check-circle" onclick="toggle(2)"></div>
+          <div class="task-body">
+            <div class="task-text">Consulta médica anual</div>
+            <div class="task-meta">
+              <span class="task-date-badge">Qua 26</span>
+              <span class="chip chip-teal">Saúde</span>
+              <div class="priority-dot dot-mid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t3">
+          <div class="check-circle" onclick="toggle(3)"></div>
+          <div class="task-body">
+            <div class="task-text">Revisão do projeto frontend</div>
+            <div class="task-meta">
+              <span class="task-date-badge">Qui 27</span>
+              <span class="chip chip-purple">Trabalho</span>
+              <div class="priority-dot dot-mid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t4">
+          <div class="check-circle" onclick="toggle(4)"></div>
+          <div class="task-body">
+            <div class="task-text">Academia — treino de força</div>
+            <div class="task-meta">
+              <span class="task-date-badge">Sex 28</span>
+              <span class="chip chip-teal">Saúde</span>
+              <div class="priority-dot dot-low"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t5">
+          <div class="check-circle" onclick="toggle(5)"></div>
+          <div class="task-body">
+            <div class="task-text">Planejar orçamento de abril</div>
+            <div class="task-meta">
+              <span class="task-date-badge">Seg 31</span>
+              <span class="chip chip-orange">Pessoal</span>
+              <div class="priority-dot dot-mid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t6">
+          <div class="check-circle" onclick="toggle(6)"></div>
+          <div class="task-body">
+            <div class="task-text">Apresentação para cliente</div>
+            <div class="task-meta">
+              <span class="task-date-badge">Ter 01</span>
+              <span class="chip chip-purple">Trabalho</span>
+              <span class="chip chip-pink">Urgente</span>
+              <div class="priority-dot dot-high"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Add task -->
+      <div class="add-row">
+        <input class="add-input-card" id="add-input" placeholder="Adicionar nova tarefa..." onkeydown="if(event.key==='Enter')addTask()" />
+        <button class="btn-add-small" onclick="addTask()">+</button>
+      </div>
+    </div>
+
+    <!-- Side panel -->
+    <div class="side-panel">
+      <!-- Mini calendar -->
+      <div class="mini-calendar">
+        <div class="cal-header">
+          <h3>Março 2026</h3>
+          <div class="cal-nav">
+            <button>‹</button>
+            <button>›</button>
+          </div>
+        </div>
+        <div class="cal-days-header">
+          <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+        </div>
+        <div class="cal-grid">
+          <!-- Blanks -->
+          <div class="cal-day empty"></div>
+          <div class="cal-day empty"></div>
+          <div class="cal-day empty"></div>
+          <div class="cal-day">1</div>
+          <div class="cal-day">2</div>
+          <div class="cal-day">3</div>
+          <div class="cal-day">4</div>
+          <div class="cal-day">5</div>
+          <div class="cal-day">6</div>
+          <div class="cal-day">7</div>
+          <div class="cal-day">8</div>
+          <div class="cal-day">9</div>
+          <div class="cal-day">10</div>
+          <div class="cal-day">11</div>
+          <div class="cal-day">12</div>
+          <div class="cal-day">13</div>
+          <div class="cal-day">14</div>
+          <div class="cal-day">15</div>
+          <div class="cal-day">16</div>
+          <div class="cal-day">17</div>
+          <div class="cal-day">18</div>
+          <div class="cal-day">19</div>
+          <div class="cal-day">20</div>
+          <div class="cal-day">21</div>
+          <div class="cal-day">22</div>
+          <div class="cal-day">23</div>
+          <div class="cal-day has-task">24</div>
+          <div class="cal-day has-task">25</div>
+          <div class="cal-day has-task">26</div>
+          <div class="cal-day has-task">27</div>
+          <div class="cal-day today has-task">28</div>
+          <div class="cal-day">29</div>
+          <div class="cal-day">30</div>
+          <div class="cal-day">31</div>
+        </div>
+      </div>
+
+      <!-- Upcoming -->
+      <div class="upcoming-panel">
+        <h3>Em breve</h3>
+        <div class="upcoming-item">
+          <div class="upcoming-dot" style="background:var(--pink)"></div>
+          <div class="upcoming-info">
+            <div class="name">Apresentação para cliente</div>
+            <div class="date">Terça, 01 de Abril</div>
+          </div>
+        </div>
+        <div class="upcoming-item">
+          <div class="upcoming-dot" style="background:var(--orange)"></div>
+          <div class="upcoming-info">
+            <div class="name">Planejar orçamento</div>
+            <div class="date">Segunda, 31 de Março</div>
+          </div>
+        </div>
+        <div class="upcoming-item">
+          <div class="upcoming-dot" style="background:var(--purple)"></div>
+          <div class="upcoming-info">
+            <div class="name">Academia</div>
+            <div class="date">Sexta, 28 de Março</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
   </main>
 
-  <script src="js/api.js"></script>
-  <script src="js/app.js"></script>
+
 </body>
 </html>
