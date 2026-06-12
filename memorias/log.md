@@ -1,12 +1,17 @@
 # Log — MyFinance (ultimos 10 eventos)
 
-1. [2026-06-10] Projeto MyFinance inicializado
-2. [2026-06-10] Decisao: reconstruir do zero, nao se basear no projeto existente
-3. [2026-06-10] Estrategia de memorias definida: estado.md + log.md + snapshots
-4. [2026-06-10] Agents definidos: arquiteto, diretor de criacao, front-end, back-end, professor, orquestrador MCP
-5. [2026-06-11] Reuniao 1: brainstorming de conceito e layout — duracao ~2.5h
-6. [2026-06-11] Decisao: proposito = life manager pessoal, publico = uso exclusivo, plataforma = web responsiva
-7. [2026-06-11] Decisao: complexidade simples e funcional, modulos independentes, visual dark elegante
-8. [2026-06-11] Decisao: autenticacao login simples 1 usuario, entrada financeira manual + importacao CSV/PDF
-9. [2026-06-11] Decisao: conceito central = hub com cards como centro de comando pessoal
-10. [2026-06-11] Decisao: layout final = spotlight-sidebar-transicao — hub limpo sem sidebar, sidebar surge com animacao ao entrar no modulo; prototipo HTML/CSS/JS criado
+1. [2026-06-12] Reuniao 2: definicao completa de stack, funcionalidades dos 7 modulos e integracoes
+2. [2026-06-12] Decisao: stack front = HTML/CSS/JS puro + ES Modules, stack back = Node.js + Express + SQLite, deploy = GitHub Pages + Render Free Tier ($0/mes)
+3. [2026-06-12] Decisao: seguranca = helmet + bcrypt + rate-limit + cors
+4. [2026-06-12] Decisao: modulo Financas detalhado (F1-F15) — perfis, categorias, extrato, fixas, investimentos, importacao CSV/PDF, graficos Chart.js
+5. [2026-06-12] Decisao: modulo Tarefas = lista simples + Kanban drag&drop + tags + sub-tarefas + 3 prioridades (sem projetos, sem recorrencia)
+6. [2026-06-12] Decisao: modulo Metas = quantitativas com progresso, sem prazo obrigatorio, sem milestones, independente de Financas
+7. [2026-06-12] Decisao: modulo Cronograma = visao mes+dia, eventos com horario/dia inteiro/lembretes, recorrencia sim, integrado com Tarefas e Habitos
+8. [2026-06-12] Decisao: modulo Notas = Markdown preview (estilo Notion), pastas/cadernos, flexivel curta ou longa — WYSIWYG descartado
+9. [2026-06-12] Decisao: modulo Habitos = diarios checkbox, streak sim, mapa de calor+lista, binario check/uncheck
+10. [2026-06-12] Decisao: modulo Projetos = 7o modulo no hub, estrutura interna com abas (tarefas/notas/arquivos/metas), arquivos = links externos, cor = #f97316 laranja
+
+# Eventos anteriores (arquivados)
+# 11. [2026-06-11] Decisao: layout final = spotlight-sidebar-transicao
+# 12. [2026-06-11] Reuniao 1: brainstorming conceito e layout
+# 13. [2026-06-10] Projeto MyFinance inicializado
