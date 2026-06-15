@@ -1,6 +1,6 @@
 # Estado Atual — MyFinance
 
-atualizado = 2026-06-14
+atualizado = 2026-06-15
 fase = implementacao (planejamento concluido, pronto para codificar)
 projeto = reconstruir do zero
 
@@ -48,9 +48,9 @@ reunioes_realizadas = 3
 decisoes_totais = 55+
 
 ultima_reuniao = 2026-06-14 — decisoes estruturais: pastas, auth, navegacao cruzada, hub cards, mobile, config
-ultima_decisao = configuracoes definidas (perfil, aparencia, financas, cronograma, habitos, exportar, sobre)
-proxima_acao = criar estrutura de pastas + modelo de dados completo + contrato de APIs
+ultima_decisao = estrutura de pastas do projeto criada no filesystem
+proxima_acao = inicializar banco de dados SQLite (schema.sql + seeds.sql)
 
-pendente = modelo de dados completo, contrato de APIs detalhado
+pendente = inicializar banco SQLite, servidor backend base rodando, front base rodando
 
 snapshot_atual = nenhum
