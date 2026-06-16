@@ -1,7 +1,7 @@
 # Estado Atual — MyFinance
 
 atualizado = 2026-06-15
-fase = implementacao (planejamento concluido, pronto para codificar)
+fase = implementacao (backend completo — 10 modulos + hub + exportar)
 projeto = reconstruir do zero
 
 proposito = life manager pessoal
@@ -10,7 +10,7 @@ plataforma = web responsiva (mobile + desktop)
 complexidade = simples e funcional
 integracao_modulos = independentes (com integracoes selecionadas)
 visual = dark elegante (estilo Discord/Spotify/Linear)
-autenticacao = sessao salva no SQLite (express-session + connect-sqlite3)
+autenticacao = sessao salva no SQLite (express-session + sessionStore custom better-sqlite3)
 entrada_financeira = manual + importacao CSV/PDF extrato
 conceito_central = hub com cards (centro de comando pessoal) — hub spotlight puro, sidebar surge ao entrar no modulo
 
@@ -33,7 +33,7 @@ integracoes_ativas = cronograma←tarefas (vencimento), cronograma←habitos (ba
 integracoes_rejeitadas = finanças↔cronograma, habitos↔tarefas
 
 estrutura_pastas = hibrida (compartilhado por tipo, modulos por funcionalidade)
-auth = sessao + SQLite (express-session + connect-sqlite3)
+auth = sessao + SQLite (express-session + sessionStore custom better-sqlite3)
 navegacao_cruzada_projetos = filtro/projeto_id (itens com projeto_id aparecem no projeto, sem projeto = soltos)
 hub_cards = saldo mes, pendentes, top3 metas, prox eventos, ultimas notas, streak, projetos ativos
 layout_mobile = sidebar some, full-screen, adaptacoes por modulo
@@ -48,9 +48,9 @@ reunioes_realizadas = 3
 decisoes_totais = 55+
 
 ultima_reuniao = 2026-06-14 — decisoes estruturais: pastas, auth, navegacao cruzada, hub cards, mobile, config
-ultima_decisao = estrutura de pastas do projeto criada no filesystem
-proxima_acao = inicializar banco de dados SQLite (schema.sql + seeds.sql)
+ultima_decisao = todos os modulos backend implementados (auth, financas, tarefas, metas, cronograma, habitos, notas, projetos, hub, exportar)
+proxima_acao = implementar front-end (HTML/CSS/JS puro, dark elegante)
 
-pendente = inicializar banco SQLite, servidor backend base rodando, front base rodando
+pendente = front-end completo
 
 snapshot_atual = nenhum

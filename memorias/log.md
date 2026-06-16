@@ -1,18 +1,16 @@
 # Log — MyFinance (ultimos 10 eventos)
 
-1. [2026-06-14] Decisao: estrutura de pastas = hibrida (compartilhado por tipo, modulos por funcionalidade)
-2. [2026-06-14] Decisao: autenticacao = sessao salva no SQLite (express-session + connect-sqlite3), nao JWT
-3. [2026-06-14] Decisao: navegacao cruzada em Projetos = filtro/projeto_id (itens vinculados aparecem no projeto, soltos ficam no modulo)
-4. [2026-06-14] Decisao: notas soltas vs projetos = ambas existem (nota sem projeto_id = solta, com projeto_id = vinculada)
-5. [2026-06-14] Decisao: hub cards definidos (saldo, pendentes, top3 metas, prox eventos, ultimas notas, streak, projetos ativos)
-6. [2026-06-14] Decisao: layout mobile = sidebar some, full-screen, adaptacoes por modulo (swipe kanban, abas verticais projetos, dia no cronograma)
-7. [2026-06-14] Decisao: configuracoes (⚙) = perfil, aparencia, financas, cronograma, habitos, exportar, sobre
-8. [2026-06-14] Decisao: planejamento conceitual concluido — proxima fase = implementacao (banco de dados + estrutura de pastas)
-9. [2026-06-14] Relatorio completo de desenvolvimento criado em rascunho-do-projeto/relatorios/relatorio-desenvolvimento.md
-10. [2026-06-15] Acao: Estrutura física de pastas do front-end e back-end criada no filesystem
+1. [2026-06-15] Acao: Habitos module implementado (CRUD + checks + streak + stats)
+2. [2026-06-15] Acao: Notas + Cadernos module implementado (CRUD com paginacao, busca, filtros)
+3. [2026-06-15] Acao: Projetos module implementado (CRUD + links + itens vinculados + progresso)
+4. [2026-06-15] Acao: Hub module implementado (dashboard agregado com resumo de todos os modulos)
+5. [2026-06-15] Acao: Exportar module implementado (JSON completo + CSV por tabela)
+6. [2026-06-15] Acao: routes/index.js atualizado com todos os 10 modulos registrados
+7. [2026-06-15] Acao: Servidor testado e rodando com sucesso (npm run dev)
+8. [2026-06-15] Acao: Modulos F1-F6 implementados (auth, financas, tarefas, metas, cronograma)
+9. [2026-06-15] Decisao: substituido connect-sqlite3 por sessionStore custom (better-sqlite3) para eliminar vulnerabilities
+10. [2026-06-15] Decisao: bcrypt v5→v6 via audit fix, hash regenerado em seeds.sql
 
 # Eventos anteriores (arquivados)
-# 14. [2026-06-14] Reuniao 3: decisoes estruturais finais — estrutura de pastas, auth, navegacao cruzada, hub cards, layout mobile, configuracoes
-# 11. [2026-06-12] Decisao: modulo Financas detalhado (F1-F15)
-# 12. [2026-06-12] Reuniao 2: definicao completa de stack, funcionalidades dos 7 modulos e integracoes
-# 13. [2026-06-11] Reuniao 1: brainstorming conceito e layout
+# 12. [2026-06-14] Decisao: autenticacao = sessao salva no SQLite
+# 11. [2026-06-14] Decisao: navegacao cruzada em Projetos = filtro/projeto_id
