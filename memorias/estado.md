@@ -52,5 +52,6 @@ ultima_decisao = frontend integrado ao backend via express.static, API base rela
 proxima_acao = testar interativamente no navegador, resolver bugs visuais, testar responsividade mobile
 
 pendente = testes visuais manuais, responsividade mobile, deploy
+bugs_corrigidos = exportacao URL hardcoded, dark mode sem persistencia/efeito
 
 snapshot_atual = nenhum

@@ -3,6 +3,7 @@ import { getGreeting, getModuleAccent } from './utils/helpers.js';
 import { formatarDataCompleta } from './utils/formatDate.js';
 import { toast } from './components/toast/toast.js';
 import { initSidebar } from './components/sidebar/sidebar.js';
+import { applyTheme, getStoredTheme } from './utils/theme.js';
 import { FinancasModule } from './modules/financas/financas.js';
 import { TarefasModule } from './modules/tarefas/tarefas.js';
 import { MetasModule } from './modules/metas/metas.js';
@@ -271,6 +272,9 @@ async function checkAuth() {
     hub.classList.remove('hidden');
     updateGreeting();
     loadHubData();
+    get('/auth/configuracoes').then(config => {
+      if (config?.tema) applyTheme(config.tema);
+    }).catch(() => {});
   } catch (err) {
     isAuthenticated = false;
     showLogin();
@@ -332,6 +336,7 @@ function init() {
   });
 
   checkAuth();
+  applyTheme(getStoredTheme());
 }
 
 init();

@@ -2,6 +2,7 @@ import { get, put, post } from '../../utils/api.js';
 import { showModal } from '../../components/modal/modal.js';
 import { toast } from '../../components/toast/toast.js';
 import { confirm } from '../../components/confirm/confirm.js';
+import { applyTheme, getStoredTheme } from '../../utils/theme.js';
 
 export class ConfiguracoesModule {
   constructor() {
@@ -66,6 +67,7 @@ export class ConfiguracoesModule {
 
     perfil.querySelector('#cfg-senha').addEventListener('click', () => this.openSenhaModal());
 
+    const isDark = getStoredTheme() !== 'light';
     const aparencia = document.createElement('div');
     aparencia.className = 'config-section';
     aparencia.innerHTML = `
@@ -76,15 +78,20 @@ export class ConfiguracoesModule {
           <div class="config-row-desc">Ativo por padrão</div>
         </div>
         <div class="config-row-value">
-          <div class="toggle active" id="cfg-dark"></div>
+          <div class="toggle ${isDark ? 'active' : ''}" id="cfg-dark"></div>
         </div>
       </div>
     `;
     body.appendChild(aparencia);
 
     const darkToggle = aparencia.querySelector('#cfg-dark');
-    darkToggle.addEventListener('click', () => {
+    darkToggle.addEventListener('click', async () => {
+      const activate = !darkToggle.classList.contains('active');
       darkToggle.classList.toggle('active');
+      applyTheme(activate ? 'dark' : 'light');
+      try {
+        await put('/auth/configuracoes', { tema: activate ? 'dark' : 'light' });
+      } catch {}
     });
 
     const financas = document.createElement('div');
@@ -135,11 +142,11 @@ export class ConfiguracoesModule {
     body.appendChild(exportar);
 
     exportar.querySelector('#cfg-export-json').addEventListener('click', () => {
-      window.open('http://localhost:3000/api/exportar/json', '_blank');
+      window.open('/api/exportar/json', '_blank');
     });
     exportar.querySelector('#cfg-export-csv').addEventListener('click', () => {
       const tabela = exportar.querySelector('#cfg-export-table').value;
-      window.open(`http://localhost:3000/api/exportar/csv?tabela=${tabela}`, '_blank');
+      window.open(`/api/exportar/csv?tabela=${tabela}`, '_blank');
     });
 
     const sobre = document.createElement('div');

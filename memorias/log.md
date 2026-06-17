@@ -1,15 +1,15 @@
 # Log — MyFinance (ultimos 10 eventos)
 
-1. [2026-06-17] Acao: Adicionado CSS .app e .main-area (flex layout para o container principal)
-2. [2026-06-17] Acao: Removidos 8 arquivos HTML vazios dos modulos (nao usados, renderizacao via JS)
-3. [2026-06-17] Acao: Removidos 32 arquivos JS de sub-componentes vazios (funcionalidade integrada nos modulos principais)
-4. [2026-06-17] Acao: Backend configurado para servir frontend via express.static (dev e prod)
-5. [2026-06-17] Acao: API base relativa (/api) para funcionar same-origin (sem CORS)
-6. [2026-06-17] Acao: Auth 401 agora dispara CustomEvent auth:logout em vez de hash change
-7. [2026-06-17] Acao: app.js atualizado para ouvir auth:logout e mostrar login page
-8. [2026-06-17] Acao: Testado servidor integrado — all 18 JS + 18 CSS assets servidos com HTTP 200
-9. [2026-06-17] Acao: Testado login API (admin@myfinance.com/admin123) e hub/dashboard — funcional
-10. [2026-06-17] Decisao: Frontend servido pelo backend (same origin) elimina problema de CORS
+1. [2026-06-17] Bugfix: URLs de exportacao hardcoded (localhost:3000) substituidas por caminhos relativos (/api/...)
+2. [2026-06-17] Bugfix: Dark mode agora funciona de verdade — classe light-theme no <html>, variaveis CSS light, persistencia via localStorage + API /auth/configuracoes
+3. [2026-06-17] Acao: Criado utils/theme.js (applyTheme, getStoredTheme, initTheme)
+4. [2026-06-17] Acao: Adicionado bloco html.light-theme com variaveis claras em variables.css
+5. [2026-06-17] Acao: app.js inicializa tema no startup + busca config.tema do backend no checkAuth
+6. [2026-06-17] Acao: Adicionado CSS .app e .main-area (flex layout para o container principal)
+7. [2026-06-17] Acao: Removidos 8 arquivos HTML vazios dos modulos (nao usados, renderizacao via JS)
+8. [2026-06-17] Acao: Removidos 32 arquivos JS de sub-componentes vazios (funcionalidade integrada nos modulos principais)
+9. [2026-06-17] Acao: Backend configurado para servir frontend via express.static (dev e prod)
+10. [2026-06-17] Acao: API base relativa (/api) para funcionar same-origin (sem CORS)
 
 # Eventos anteriores (arquivados)
 # 1. [2026-06-15] Acao: Habitos module implementado (CRUD + checks + streak + stats)
