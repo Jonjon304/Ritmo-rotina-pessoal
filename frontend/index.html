@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyFinance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/variables.css">
+  <link rel="stylesheet" href="styles/reset.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/hub.css">
+  <link rel="stylesheet" href="styles/sidebar.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="components/modal/modal.css">
+  <link rel="stylesheet" href="components/toast/toast.css">
+  <link rel="stylesheet" href="components/confirm/confirm.css">
+  <link rel="stylesheet" href="components/card/card.css">
+  <link rel="stylesheet" href="modules/financas/financas.css">
+  <link rel="stylesheet" href="modules/tarefas/tarefas.css">
+  <link rel="stylesheet" href="modules/metas/metas.css">
+  <link rel="stylesheet" href="modules/cronograma/cronograma.css">
+  <link rel="stylesheet" href="modules/notas/notas.css">
+  <link rel="stylesheet" href="modules/habitos/habitos.css">
+  <link rel="stylesheet" href="modules/projetos/projetos.css">
+  <link rel="stylesheet" href="modules/configuracoes/configuracoes.css">
+</head>
+<body>
+
+  <div id="app" class="app">
+
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-top">
+        <button class="sidebar-btn sidebar-home" id="btn-home" title="Home">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="sidebar-modules">
+        <button class="sidebar-btn" data-module="financas" style="--accent: #8b5cf6;" title="Finanças">
+          <span class="sidebar-icon">&#128176;</span>
+        </button>
+        <button class="sidebar-btn" data-module="tarefas" style="--accent: #3b82f6;" title="Tarefas">
+          <span class="sidebar-icon">&#128203;</span>
+        </button>
+        <button class="sidebar-btn" data-module="metas" style="--accent: #f59e0b;" title="Metas">
+          <span class="sidebar-icon">&#127919;</span>
+        </button>
+        <button class="sidebar-btn" data-module="cronograma" style="--accent: #10b981;" title="Cronograma">
+          <span class="sidebar-icon">&#128197;</span>
+        </button>
+        <button class="sidebar-btn" data-module="notas" style="--accent: #ec4899;" title="Notas">
+          <span class="sidebar-icon">&#128221;</span>
+        </button>
+        <button class="sidebar-btn" data-module="habitos" style="--accent: #06b6d4;" title="Hábitos">
+          <span class="sidebar-icon">&#128260;</span>
+        </button>
+        <button class="sidebar-btn" data-module="projetos" style="--accent: #f97316;" title="Projetos">
+          <span class="sidebar-icon">&#128736;&#65039;</span>
+        </button>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="sidebar-btn" id="btn-settings" title="Configurações">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </nav>
+
+    <main id="main-area" class="main-area">
+
+      <div id="login-page" class="login-page" style="display:none;">
+        <div class="login-card">
+          <h1 class="login-title">MyFinance</h1>
+          <p class="login-subtitle">Seu life manager pessoal</p>
+          <form id="login-form" class="login-form">
+            <div class="form-group">
+              <label class="form-label" for="login-email">Email</label>
+              <input class="form-input" type="email" id="login-email" placeholder="seu@email.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="login-senha">Senha</label>
+              <input class="form-input" type="password" id="login-senha" placeholder="Sua senha" required>
+            </div>
+            <button class="btn-primary login-btn" type="submit" style="--accent: #8b5cf6; width:100%;">Entrar</button>
+          </form>
+        </div>
+      </div>
+
+      <div id="hub" class="hub">
+        <div class="hub-greeting">
+          <h1 class="greeting-text" id="greeting-text"></h1>
+          <p class="greeting-date" id="greeting-date"></p>
+        </div>
+        <p class="hub-subtitle">O que você quer fazer?</p>
+        <div class="hub-cards" id="hub-cards"></div>
+      </div>
+
+      <div id="module-content" class="module-content">
+        <div id="module-page"></div>
+      </div>
+    </main>
+
+    <div id="mobile-overlay" class="mobile-overlay"></div>
+
+    <nav id="tab-bar" class="tab-bar">
+      <button class="tab-btn active" data-tab="home">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="tab-btn" data-tab="financas">
+        <span>&#128176;</span><span>Finanças</span>
+      </button>
+      <button class="tab-btn" data-tab="tarefas">
+        <span>&#128203;</span><span>Tarefas</span>
+      </button>
+      <button class="tab-btn" data-tab="metas">
+        <span>&#127919;</span><span>Metas</span>
+      </button>
+      <button class="tab-btn" data-tab="more">
+        <span>&#8943;</span><span>Mais</span>
+      </button>
+    </nav>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

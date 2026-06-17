@@ -1,7 +1,7 @@
 # Estado Atual — MyFinance
 
-atualizado = 2026-06-15
-fase = implementacao (backend completo — 10 modulos + hub + exportar)
+atualizado = 2026-06-17
+fase = integracao (backend + frontend integrados, servidos pelo mesmo Express)
 projeto = reconstruir do zero
 
 proposito = life manager pessoal
@@ -45,12 +45,12 @@ layout_docs = rascunho-do-projeto/layouts-reuniao-1/
 rascunhos = rascunho-do-projeto/ (centralizacao de ideias, relatorios, layouts)
 
 reunioes_realizadas = 3
-decisoes_totais = 55+
+decisoes_totais = 60+
 
 ultima_reuniao = 2026-06-14 — decisoes estruturais: pastas, auth, navegacao cruzada, hub cards, mobile, config
-ultima_decisao = todos os modulos backend implementados (auth, financas, tarefas, metas, cronograma, habitos, notas, projetos, hub, exportar)
-proxima_acao = implementar front-end (HTML/CSS/JS puro, dark elegante)
+ultima_decisao = frontend integrado ao backend via express.static, API base relativa, auth:event logout dispatcher
+proxima_acao = testar interativamente no navegador, resolver bugs visuais, testar responsividade mobile
 
-pendente = front-end completo
+pendente = testes visuais manuais, responsividade mobile, deploy
 
 snapshot_atual = nenhum

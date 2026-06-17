@@ -24,8 +24,6 @@ app.use(cors({
 
 app.use(express.json())
 
-app.use('/api/', apiLimiter)
-
 const sessionMaxAge = (parseInt(process.env.SESSION_MAX_AGE_DAYS) || 7) * 24 * 60 * 60 * 1000
 
 app.use(session({
@@ -44,12 +42,19 @@ app.use(session({
   }
 }))
 
-app.get('/', (req, res) => {
-  res.json({ versao: '1.0.0', timestamp: new Date().toISOString() })
-})
+app.use('/api/', apiLimiter)
 
 const routes = require('./routes')
 app.use('/api', routes)
+
+if (isProd) {
+  app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')))
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'))
+  })
+} else {
+  app.use(express.static(path.join(__dirname, '..', 'frontend')))
+}
 
 app.use(errorHandler)
 

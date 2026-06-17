@@ -1,0 +1,196 @@
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.week-label {
+  font-size: 15px;
+  font-weight: 600;
+  min-width: 200px;
+  text-align: center;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.week-day {
+  background: var(--bg-base);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 16px 12px;
+  min-height: 160px;
+  transition: border-color 200ms ease;
+  cursor: pointer;
+}
+
+.week-day:hover {
+  border-color: var(--text-muted);
+}
+
+.week-day.today {
+  border-color: var(--success);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.1);
+}
+
+.week-day-name {
+  display: block;
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.week-day-num {
+  display: block;
+  font-size: var(--font-lg);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.week-events {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.week-event {
+  font-size: var(--font-xs);
+  padding: 6px 8px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  border-left: 3px solid var(--accent);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.week-event:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.mes-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 24px;
+}
+
+.mes-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.mes-cell:hover {
+  background: var(--bg-hover);
+}
+
+.mes-cell.today {
+  background: var(--accent-cronograma);
+  color: #fff;
+  font-weight: 600;
+}
+
+.mes-cell.has-event {
+  position: relative;
+}
+
+.mes-cell.has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent-cronograma);
+}
+
+.mes-cell.other-month {
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+
+.dia-view {
+  max-width: 600px;
+}
+
+.dia-view-header {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.dia-event-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-base);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+
+.dia-event-item:hover {
+  border-color: var(--accent-cronograma);
+}
+
+.dia-event-time {
+  font-family: var(--font-mono);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  min-width: 80px;
+}
+
+.dia-event-title {
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .week-grid {
+    gap: 4px;
+  }
+  .week-day {
+    padding: 10px 6px;
+    min-height: 120px;
+  }
+  .week-day-num {
+    font-size: var(--font-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .week-grid {
+    gap: 3px;
+  }
+  .week-day {
+    padding: 8px 4px;
+    min-height: 80px;
+  }
+  .week-day-num {
+    font-size: var(--font-base);
+    margin-bottom: 6px;
+  }
+  .week-event {
+    font-size: 9px;
+    padding: 3px 4px;
+  }
+}
