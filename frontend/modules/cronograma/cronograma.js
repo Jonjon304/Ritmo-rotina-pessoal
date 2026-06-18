@@ -130,7 +130,7 @@ export class CronogramaModule {
         <span class="week-day-num">${d.getDate()}</span>
         <div class="week-events">
           ${dayEvents.slice(0, 4).map(e => `
-            <div class="week-event" style="--accent: #10b981;" data-id="${e.id}">${e.hora_inicio || ''} ${e.titulo || e.nome || ''}</div>
+            <div class="week-event" style="--accent: #10b981;" data-id="${e.id}">${e.horario_inicio || ''} ${e.nome || ''}</div>
           `).join('')}
           ${dayEvents.length > 4 ? `<div style="font-size:10px;color:var(--text-muted);">+${dayEvents.length - 4} mais</div>` : ''}
         </div>
@@ -180,8 +180,8 @@ export class CronogramaModule {
         const item = document.createElement('div');
         item.className = 'dia-event-item';
         item.innerHTML = `
-          <span class="dia-event-time">${e.hora_inicio || ''} - ${e.hora_fim || ''}</span>
-          <span class="dia-event-title">${e.titulo || e.nome || '—'}</span>
+          <span class="dia-event-time">${e.horario_inicio || ''} - ${e.horario_fim || ''}</span>
+          <span class="dia-event-title">${e.nome || '—'}</span>
         `;
         item.addEventListener('click', () => this.openEventoModal(e));
         dia.appendChild(item);
@@ -195,8 +195,8 @@ export class CronogramaModule {
     const content = document.createElement('div');
     content.innerHTML = `
       <div class="form-group">
-        <label class="form-label">Título</label>
-        <input class="form-input" id="ev-titulo" value="${isEdit ? (evento.titulo || '') : ''}" placeholder="Ex: Reunião equipe">
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="ev-nome" value="${isEdit ? (evento.nome || '') : ''}" placeholder="Ex: Reunião equipe">
       </div>
       <div class="form-group">
         <label class="form-label">Descrição</label>
@@ -204,16 +204,26 @@ export class CronogramaModule {
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" id="ev-tipo">
+            <option value="com_horario" ${!isEdit || evento.tipo === 'com_horario' ? 'selected' : ''}>Com horário</option>
+            <option value="dia_inteiro" ${isEdit && evento.tipo === 'dia_inteiro' ? 'selected' : ''}>Dia inteiro</option>
+            <option value="lembrete" ${isEdit && evento.tipo === 'lembrete' ? 'selected' : ''}>Lembrete</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">Data</label>
-          <input class="form-input" id="ev-data" type="date" value="${isEdit ? (evento.data || evento.data_inicio ? formatarDataISO(evento.data || evento.data_inicio) : '') : (this.selectedDate || formatarDataISO(new Date()))}">
+          <input class="form-input" id="ev-data" type="date" value="${isEdit ? (evento.data_inicio ? formatarDataISO(evento.data_inicio) : '') : (this.selectedDate || formatarDataISO(new Date()))}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Horário início</label>
+          <input class="form-input" id="ev-horario-ini" type="time" value="${isEdit ? (evento.horario_inicio || '') : ''}">
         </div>
         <div class="form-group">
-          <label class="form-label">Hora início</label>
-          <input class="form-input" id="ev-hora-ini" type="time" value="${isEdit ? (evento.hora_inicio || '') : ''}">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Hora fim</label>
-          <input class="form-input" id="ev-hora-fim" type="time" value="${isEdit ? (evento.hora_fim || '') : ''}">
+          <label class="form-label">Horário fim</label>
+          <input class="form-input" id="ev-horario-fim" type="time" value="${isEdit ? (evento.horario_fim || '') : ''}">
         </div>
       </div>
       <div class="modal-actions">
@@ -228,12 +238,12 @@ export class CronogramaModule {
     content.querySelector('.ev-cancel').addEventListener('click', close);
     content.querySelector('.ev-save').addEventListener('click', async () => {
       const data = {
-        titulo: content.querySelector('#ev-titulo').value,
+        nome: content.querySelector('#ev-nome').value,
         descricao: content.querySelector('#ev-desc').value || null,
-        data: content.querySelector('#ev-data').value,
+        tipo: content.querySelector('#ev-tipo').value,
         data_inicio: content.querySelector('#ev-data').value,
-        hora_inicio: content.querySelector('#ev-hora-ini').value || null,
-        hora_fim: content.querySelector('#ev-hora-fim').value || null,
+        horario_inicio: content.querySelector('#ev-horario-ini').value || null,
+        horario_fim: content.querySelector('#ev-horario-fim').value || null,
       };
       try {
         if (isEdit) await put(`/cronograma/eventos/${evento.id}`, data);

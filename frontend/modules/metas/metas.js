@@ -107,7 +107,7 @@ export class MetasModule {
             <div class="goal-bar" style="--progress: ${pct}%; --accent: #f59e0b;"></div>
           </div>
           <span class="goal-current mono">${m.tipo === 'financeira' ? formatarMoeda(m.valor_atual || 0) : (m.valor_atual || 0)} <span class="goal-pct">${pct}%</span></span>
-          ${m.prazo ? `<span class="goal-deadline">Prazo: ${formatarDataCurta(m.prazo)}</span>` : ''}
+          ${m.data_alvo ? `<span class="goal-deadline">Prazo: ${formatarDataCurta(m.data_alvo)}</span>` : ''}
         `;
         card.addEventListener('click', () => this.openMetaModal(m));
         grid.appendChild(card);
@@ -121,8 +121,8 @@ export class MetasModule {
     const content = document.createElement('div');
     content.innerHTML = `
       <div class="form-group">
-        <label class="form-label">Título</label>
-        <input class="form-input" id="m-titulo" value="${isEdit ? (meta.titulo || '') : ''}" placeholder="Ex: Fundo de emergência">
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="m-nome" value="${isEdit ? (meta.nome || '') : ''}" placeholder="Ex: Fundo de emergência">
       </div>
       <div class="form-group">
         <label class="form-label">Descrição</label>
@@ -148,7 +148,7 @@ export class MetasModule {
         </div>
         <div class="form-group">
           <label class="form-label">Prazo</label>
-          <input class="form-input" id="m-prazo" type="date" value="${isEdit && meta.prazo ? formatarDataISO(meta.prazo) : ''}">
+          <input class="form-input" id="m-prazo" type="date" value="${isEdit && meta.data_alvo ? formatarDataISO(meta.data_alvo) : ''}">
         </div>
       </div>
       <div class="form-group">
@@ -172,12 +172,12 @@ export class MetasModule {
     content.querySelector('.m-cancel').addEventListener('click', close);
     content.querySelector('.m-save').addEventListener('click', async () => {
       const data = {
-        titulo: content.querySelector('#m-titulo').value,
+        nome: content.querySelector('#m-nome').value,
         descricao: content.querySelector('#m-desc').value || null,
         tipo: content.querySelector('#m-tipo').value,
         valor_alvo: parseFloat(content.querySelector('#m-alvo').value) || 0,
         valor_atual: parseFloat(content.querySelector('#m-atual').value) || 0,
-        prazo: content.querySelector('#m-prazo').value || null,
+        data_alvo: content.querySelector('#m-prazo').value || null,
         status: content.querySelector('#m-status').value,
       };
       try {

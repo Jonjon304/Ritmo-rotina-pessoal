@@ -247,10 +247,10 @@ export class TarefasModule {
     content.querySelector('.tk-cancel').addEventListener('click', close);
     content.querySelector('.tk-save').addEventListener('click', async () => {
       const data = {
-        titulo: content.querySelector('#tk-titulo').value,
+        nome: content.querySelector('#tk-titulo').value,
         descricao: content.querySelector('#tk-desc').value || null,
         prioridade: content.querySelector('#tk-prio').value,
-        data: content.querySelector('#tk-data').value || null,
+        vencimento: content.querySelector('#tk-data').value || null,
         status: content.querySelector('#tk-status').value,
         projeto_id: parseInt(content.querySelector('#tk-projeto').value) || null,
       };

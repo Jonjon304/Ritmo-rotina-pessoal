@@ -1,6 +1,6 @@
 # Estado Atual — MyFinance
 
-atualizado = 2026-06-17
+atualizado = 2026-06-18
 fase = integracao (backend + frontend integrados, servidos pelo mesmo Express)
 projeto = reconstruir do zero
 
@@ -48,10 +48,10 @@ reunioes_realizadas = 3
 decisoes_totais = 60+
 
 ultima_reuniao = 2026-06-14 — decisoes estruturais: pastas, auth, navegacao cruzada, hub cards, mobile, config
-ultima_decisao = frontend integrado ao backend via express.static, API base relativa, auth:event logout dispatcher
+ultima_decisao = field name mismatches front→back corrigidos em todos os modulos (tarefas, metas, cronograma, financas, projetos, habitos)
 proxima_acao = testar interativamente no navegador, resolver bugs visuais, testar responsividade mobile
 
 pendente = testes visuais manuais, responsividade mobile, deploy
-bugs_corrigidos = exportacao URL hardcoded, dark mode sem persistencia/efeito
+bugs_corrigidos = exportacao URL hardcoded, dark mode sem persistencia/efeito, field mismatches front→back (6 modulos)
 
 snapshot_atual = nenhum

@@ -1,6 +1,8 @@
 # Log — MyFinance (ultimos 10 eventos)
 
-1. [2026-06-17] Bugfix: URLs de exportacao hardcoded (localhost:3000) substituidas por caminhos relativos (/api/...)
+1. [2026-06-18] Bugfix: Field mismatches corrigidos — metas (titulo→nome, prazo→data_alvo), cronograma (titulo→nome, hora_inicio→horario_inicio, hora_fim→horario_fim, +tipo select), financas transacao (descricao→nome), financas fixa (descricao→nome, dia→dia_mes, +tipo select), financas investimento (valor→valor_aplicado, tipo text→select enum), projetos links (titulo→nome)
+2. [2026-06-18] Confirmado: habitos.js ja usa campo nome corretamente — sem correcao necessaria
+3. [2026-06-17] Bugfix: URLs de exportacao hardcoded (localhost:3000) substituidas por caminhos relativos (/api/...)
 2. [2026-06-17] Bugfix: Dark mode agora funciona de verdade — classe light-theme no <html>, variaveis CSS light, persistencia via localStorage + API /auth/configuracoes
 3. [2026-06-17] Acao: Criado utils/theme.js (applyTheme, getStoredTheme, initTheme)
 4. [2026-06-17] Acao: Adicionado bloco html.light-theme com variaveis claras em variables.css

@@ -253,7 +253,7 @@ export class ProjetosModule {
               item.innerHTML = `
                 <span class="link-item-icon">\uD83D\uDD17</span>
                 <div>
-                  <div class="link-item-text">${l.titulo || l.texto || '—'}</div>
+                  <div class="link-item-text">${l.nome || l.texto || '—'}</div>
                   <div class="link-item-url">${l.url || ''}</div>
                 </div>
                 <button class="btn-icon link-delete" data-id="${l.id}">\u2717</button>
@@ -339,8 +339,8 @@ export class ProjetosModule {
     const content = document.createElement('div');
     content.innerHTML = `
       <div class="form-group">
-        <label class="form-label">Título</label>
-        <input class="form-input" id="l-titulo" placeholder="Ex: Documentação">
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="l-nome" placeholder="Ex: Documentação">
       </div>
       <div class="form-group">
         <label class="form-label">URL</label>
@@ -357,7 +357,7 @@ export class ProjetosModule {
     content.querySelector('.l-cancel').addEventListener('click', close);
     content.querySelector('.l-save').addEventListener('click', async () => {
       const data = {
-        titulo: content.querySelector('#l-titulo').value,
+        nome: content.querySelector('#l-nome').value,
         url: content.querySelector('#l-url').value,
       };
       try {

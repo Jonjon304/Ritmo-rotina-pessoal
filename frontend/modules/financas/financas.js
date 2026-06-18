@@ -132,7 +132,7 @@ export class FinancasModule {
         const isReceita = t.tipo === 'receita';
         item.innerHTML = `
           <span class="transaction-emoji">${isReceita ? '\uD83D\uDCB5' : '\uD83C\uDFE0'}</span>
-          <span class="transaction-name">${t.descricao || t.nome || '—'}</span>
+          <span class="transaction-name">${t.nome || '—'}</span>
           <span class="transaction-category">${t.categoria_nome || t.categoria || ''}</span>
           <span class="transaction-amount ${isReceita ? 'positive' : 'negative'} mono">${isReceita ? '+' : '-'}${formatarMoeda(t.valor || 0)}</span>
           <span class="transaction-date">${t.data ? formatarDataCurta(t.data) : ''}</span>
@@ -156,7 +156,7 @@ export class FinancasModule {
         item.className = 'transaction-item';
         item.innerHTML = `
           <span class="transaction-emoji">${isReceita ? '\uD83D\uDCB5' : '\uD83C\uDFE0'}</span>
-          <span class="transaction-name">${t.descricao || t.nome || '—'}</span>
+          <span class="transaction-name">${t.nome || '—'}</span>
           <span class="transaction-category">${t.categoria_nome || t.categoria || ''}</span>
           <span class="transaction-amount ${isReceita ? 'positive' : 'negative'} mono">${isReceita ? '+' : '-'}${formatarMoeda(t.valor || 0)}</span>
           <span class="transaction-date">${t.data ? formatarDataCurta(t.data) : ''}</span>
@@ -182,9 +182,9 @@ export class FinancasModule {
         const item = document.createElement('div');
         item.className = 'fixa-item';
         item.innerHTML = `
-          <span class="transaction-name">${f.descricao || f.nome || '—'}</span>
+          <span class="transaction-name">${f.nome || '—'}</span>
           <span class="transaction-amount negative mono">-${formatarMoeda(f.valor || 0)}</span>
-          <span class="transaction-date">dia ${f.dia || '?'}</span>
+          <span class="transaction-date">dia ${f.dia_mes || '?'}</span>
           <button class="btn-icon fixa-delete" data-id="${f.id}">\u2717</button>
         `;
         item.querySelector('.fixa-delete')?.addEventListener('click', async (e) => {
@@ -227,10 +227,10 @@ export class FinancasModule {
         item.className = 'investimento-item';
         item.innerHTML = `
           <div>
-            <div style="font-weight:600;margin-bottom:4px;">${inv.nome || inv.descricao || '—'}</div>
+            <div style="font-weight:600;margin-bottom:4px;">${inv.nome || '—'}</div>
             <div style="font-size:12px;color:var(--text-muted);">${inv.tipo || ''}</div>
           </div>
-          <span class="mono" style="font-weight:700;">${formatarMoeda(inv.valor || 0)}</span>
+          <span class="mono" style="font-weight:700;">${formatarMoeda(inv.valor_aplicado || 0)}</span>
         `;
         item.addEventListener('click', () => this.openInvestimentoModal(inv));
         list.appendChild(item);
@@ -259,7 +259,7 @@ export class FinancasModule {
       this.categorias.forEach(c => {
         const chip = document.createElement('span');
         chip.className = 'category-chip';
-        chip.textContent = c.nome || c.descricao || '—';
+        chip.textContent = c.nome || '—';
         list.appendChild(chip);
       });
     }
@@ -285,8 +285,8 @@ export class FinancasModule {
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Descrição</label>
-        <input class="form-input" id="t-desc" value="${isEdit ? (transacao.descricao || '') : ''}" placeholder="Ex: Mercado">
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="t-nome" value="${isEdit ? (transacao.nome || '') : ''}" placeholder="Ex: Mercado">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -317,7 +317,7 @@ export class FinancasModule {
     content.querySelector('.t-save').addEventListener('click', async () => {
       const data = {
         tipo: content.querySelector('#t-tipo').value,
-        descricao: content.querySelector('#t-desc').value,
+        nome: content.querySelector('#t-nome').value,
         valor: parseFloat(content.querySelector('#t-valor').value) || 0,
         data: content.querySelector('#t-data').value,
         categoria_id: parseInt(content.querySelector('#t-cat').value) || null,
@@ -353,8 +353,15 @@ export class FinancasModule {
     const content = document.createElement('div');
     content.innerHTML = `
       <div class="form-group">
-        <label class="form-label">Descrição</label>
-        <input class="form-input" id="f-desc" value="${isEdit ? (fixa.descricao || '') : ''}" placeholder="Ex: Aluguel">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="f-tipo">
+          <option value="despesa" selected>Despesa</option>
+          <option value="receita">Receita</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="f-nome" value="${isEdit ? (fixa.nome || '') : ''}" placeholder="Ex: Aluguel">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -363,7 +370,7 @@ export class FinancasModule {
         </div>
         <div class="form-group">
           <label class="form-label">Dia do mês</label>
-          <input class="form-input" id="f-dia" type="number" min="1" max="31" value="${isEdit ? (fixa.dia || '') : ''}" placeholder="1">
+          <input class="form-input" id="f-dia-mes" type="number" min="1" max="31" value="${isEdit ? (fixa.dia_mes || '') : ''}" placeholder="1">
         </div>
       </div>
       <div class="modal-actions">
@@ -377,9 +384,10 @@ export class FinancasModule {
     content.querySelector('.f-cancel').addEventListener('click', close);
     content.querySelector('.f-save').addEventListener('click', async () => {
       const data = {
-        descricao: content.querySelector('#f-desc').value,
+        tipo: content.querySelector('#f-tipo').value,
+        nome: content.querySelector('#f-nome').value,
         valor: parseFloat(content.querySelector('#f-valor').value) || 0,
-        dia: parseInt(content.querySelector('#f-dia').value) || 1,
+        dia_mes: parseInt(content.querySelector('#f-dia-mes').value) || 1,
       };
       try {
         if (isEdit) await put(`/financas/fixas/${fixa.id}`, data);
@@ -398,16 +406,23 @@ export class FinancasModule {
     content.innerHTML = `
       <div class="form-group">
         <label class="form-label">Nome</label>
-        <input class="form-input" id="i-nome" value="${isEdit ? (inv.nome || inv.descricao || '') : ''}" placeholder="Ex: Tesouro Direto">
+        <input class="form-input" id="i-nome" value="${isEdit ? (inv.nome || '') : ''}" placeholder="Ex: Tesouro Direto">
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Tipo</label>
-          <input class="form-input" id="i-tipo" value="${isEdit ? (inv.tipo || '') : ''}" placeholder="Ex: Renda Fixa">
+          <select class="form-select" id="i-tipo">
+            <option value="cdb" ${!isEdit || inv.tipo === 'cdb' ? 'selected' : ''}>CDB</option>
+            <option value="tesouro" ${isEdit && inv.tipo === 'tesouro' ? 'selected' : ''}>Tesouro Direto</option>
+            <option value="acoes" ${isEdit && inv.tipo === 'acoes' ? 'selected' : ''}>Ações</option>
+            <option value="fii" ${isEdit && inv.tipo === 'fii' ? 'selected' : ''}>FIIs</option>
+            <option value="poupanca" ${isEdit && inv.tipo === 'poupanca' ? 'selected' : ''}>Poupança</option>
+            <option value="outro" ${isEdit && inv.tipo === 'outro' ? 'selected' : ''}>Outro</option>
+          </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Valor</label>
-          <input class="form-input" id="i-valor" type="number" step="0.01" value="${isEdit ? (inv.valor || '') : ''}" placeholder="0.00">
+          <label class="form-label">Valor aplicado</label>
+          <input class="form-input" id="i-valor" type="number" step="0.01" value="${isEdit ? (inv.valor_aplicado || '') : ''}" placeholder="0.00">
         </div>
       </div>
       <div class="modal-actions">
@@ -424,7 +439,7 @@ export class FinancasModule {
       const data = {
         nome: content.querySelector('#i-nome').value,
         tipo: content.querySelector('#i-tipo').value,
-        valor: parseFloat(content.querySelector('#i-valor').value) || 0,
+        valor_aplicado: parseFloat(content.querySelector('#i-valor').value) || 0,
       };
       try {
         if (isEdit) await put(`/financas/investimentos/${inv.id}`, data);
