@@ -47,7 +47,7 @@ function notasDoProjeto(userId, projetoId) {
 
 function metasDoProjeto(userId, projetoId) {
   if (!buscarPorId(userId, projetoId)) return null
-  return db.prepare('SELECT id, nome, valor_atual, valor_alvo FROM metas WHERE projeto_id = ? AND user_id = ?').all(projetoId, userId)
+  return db.prepare('SELECT id, nome, descricao, tipo, status, valor_atual, valor_alvo FROM metas WHERE projeto_id = ? AND user_id = ?').all(projetoId, userId)
 }
 
 function progressoDoProjeto(userId, projetoId) {

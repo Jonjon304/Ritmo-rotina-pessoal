@@ -220,6 +220,10 @@ CREATE TABLE IF NOT EXISTS metas (
   user_id     INTEGER NOT NULL,
   nome        TEXT    NOT NULL,
   descricao   TEXT    DEFAULT '',
+  tipo        TEXT    NOT NULL DEFAULT 'pessoal'
+              CHECK(tipo IN ('financeira', 'pessoal')),
+  status      TEXT    NOT NULL DEFAULT 'em_progresso'
+              CHECK(status IN ('em_progresso', 'concluida', 'abandonada')),
   valor_atual REAL    NOT NULL DEFAULT 0,
   valor_alvo  REAL    NOT NULL,
   data_alvo   TEXT,
@@ -270,6 +274,7 @@ CREATE TABLE IF NOT EXISTS notas (
   user_id       INTEGER NOT NULL,
   titulo        TEXT    NOT NULL DEFAULT 'Sem título',
   conteudo      TEXT    DEFAULT '',
+  fixada        INTEGER NOT NULL DEFAULT 0,
   caderno_id    INTEGER,
   projeto_id    INTEGER,
   criado_em     TEXT    DEFAULT (datetime('now')),

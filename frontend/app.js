@@ -70,36 +70,60 @@ async function loadHubData() {
 
 function renderHubCards(data) {
   hubCards.innerHTML = '';
+
+  const resumo = data.resumo || {};
+  const tarefas = data.tarefas || [];
+  const metas = data.metas || [];
+  const eventosHoje = data.eventos_hoje || [];
+  const eventosProximos = data.eventos_proximos || [];
+  const habitosHoje = data.habitos_hoje || [];
+  const notasRecentes = data.notas_recentes || [];
+  const projetosAtivos = data.projetos_ativos || [];
+
+  const tarefasPendentes = resumo.tarefas_pendentes || 0;
+  const tarefasVencendoHoje = resumo.tarefas_vencendo_hoje || 0;
+  const receitasMes = resumo.receitas_mes || 0;
+  const despesasMes = resumo.despesas_mes || 0;
+  const saldoMes = resumo.saldo_mes || 0;
+
+  const metasAtivas = metas.filter(m => m.valor_atual < m.valor_alvo).length;
+  const habitosFeitos = habitosHoje.filter(h => h.feito).length;
+  const habitosTotal = habitosHoje.length;
+
+  const proxEvento = eventosProximos[0] || eventosHoje[0] || null;
+  const proxEventoHora = proxEvento?.horario_inicio || '—';
+  const proxEventoNome = proxEvento?.nome || '—';
+
   const cards = [
     {
       module: 'financas', icon: '\uD83D\uDCB0', title: 'Finanças',
-      value: data.financas ? `R$ ${data.financas.saldo || '0'}` : '—',
-      detail: data.financas ? `${data.financas.receitas_mes ? '+' : ''}${data.financas.receitas_mes || 0} este mês` : 'Carregando...',
+      value: `R$ ${saldoMes.toLocaleString('pt-BR')}`,
+      detail: `+${receitasMes.toLocaleString('pt-BR')} / -${despesasMes.toLocaleString('pt-BR')} este mês`,
     },
     {
       module: 'tarefas', icon: '\uD83D\uDCCB', title: 'Tarefas',
-      value: data.tarefas ? `${data.tarefas.pendentes || 0} pendentes` : '—',
-      detail: data.tarefas ? `${data.tarefas.hoje || 0} hoje` : 'Carregando...',
+      value: `${tarefasPendentes} pendentes`,
+      detail: `${tarefasVencendoHoje} vencendo hoje`,
     },
     {
       module: 'metas', icon: '\uD83C\uDFAF', title: 'Metas',
-      value: data.metas ? `${data.metas.ativas || 0} ativas` : '—',
-      detail: data.metas ? `${data.metas.proximas || 0} próximas` : 'Carregando...',
+      value: `${metasAtivas} ativas`,
+      detail: `${metas.length} no total`,
     },
     {
       module: 'cronograma', icon: '\uD83D\uDCC5', title: 'Cronograma',
-      value: data.cronograma ? `Próx: ${data.cronograma.proximo_hora || '—'}` : '—',
-      detail: data.cronograma?.proximo_titulo || 'Carregando...',
+      value: proxEvento ? `Próx: ${proxEventoHora}` : '—',
+      detail: proxEvento ? proxEventoNome : 'Nenhum evento',
     },
     {
       module: 'notas', icon: '\uD83D\uDCDD', title: 'Notas',
-      value: data.notas ? `${data.notas.recentes || 0} novas` : '—',
-      detail: data.notas ? `${data.notas.fixadas || 0} fixadas` : 'Carregando...',
+      value: `${notasRecentes.length} recentes`,
+      detail: notasRecentes[0] ? notasRecentes[0].titulo : 'Nenhuma nota',
     },
     {
       module: 'habitos', icon: '\uD83D\uDD04', title: 'Hábitos',
-      value: data.habitos ? `${data.habitos.hoje || 0}/${data.habitos.total || 0} hoje` : '—',
-      detail: data.habitos ? `\uD83D\uDD25 ${data.habitos.maior_streak || 0} dias` : 'Carregando...',
+      value: `${habitosFeitos}/${habitosTotal} hoje`,
+      detail: habitosTotal > 0 ? `${Math.round((habitosFeitos / habitosTotal) * 100)}% concluído` : 'Nenhum hábito',
     },
   ];
 

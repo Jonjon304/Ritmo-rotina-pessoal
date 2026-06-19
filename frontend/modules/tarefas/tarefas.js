@@ -81,7 +81,7 @@ export class TarefasModule {
         get('/tarefas/').catch(() => []),
         get('/tarefas/tags').catch(() => []),
       ]);
-      this.tarefas = tarefas.tarefas || tarefas || [];
+      this.tarefas = tarefas.dados || tarefas.tarefas || tarefas || [];
       this.tags = tags.tags || tags || [];
     } catch (err) {
       toast.error('Erro ao carregar tarefas');
@@ -132,12 +132,12 @@ export class TarefasModule {
         item.innerHTML = `
           <input type="checkbox" class="task-checkbox" ${isDone ? 'checked' : ''}>
           <span class="task-checkmark"></span>
-          <span class="task-name">${t.titulo || t.nome || '—'}</span>
-          ${t.data ? `<span class="task-date">${formatarDataCurta(t.data)}</span>` : ''}
+          <span class="task-name">${t.nome || '—'}</span>
+          ${t.vencimento ? `<span class="task-date">${formatarDataCurta(t.vencimento)}</span>` : ''}
           <span class="badge badge-${prioClass}">${t.prioridade || 'media'}</span>
         `;
         item.querySelector('.task-checkbox').addEventListener('change', async (e) => {
-          const newStatus = e.target.checked ? 'concluida' : 'pendente';
+          const newStatus = e.target.checked ? 'concluida' : 'afazer';
           try {
             await patch(`/tarefas/${t.id}/status`, { status: newStatus });
             await this.loadData();
@@ -160,7 +160,7 @@ export class TarefasModule {
     board.className = 'kanban-board';
 
     const cols = [
-      { status: 'pendente', title: 'Pendentes', color: '#3b82f6' },
+      { status: 'afazer', title: 'Pendentes', color: '#3b82f6' },
       { status: 'em_progresso', title: 'Em Progresso', color: '#f59e0b' },
       { status: 'concluida', title: 'Concluídas', color: '#22c55e' },
     ];
@@ -181,7 +181,7 @@ export class TarefasModule {
         const card = document.createElement('div');
         card.className = 'kanban-card';
         card.innerHTML = `
-          <div class="kanban-card-title">${t.titulo || t.nome || '—'}</div>
+          <div class="kanban-card-title">${t.nome || '—'}</div>
           <div class="kanban-card-meta">
             <span class="badge badge-${{ alta: 'high', media: 'medium', baixa: 'low' }[t.prioridade] || 'medium'}">${t.prioridade || 'media'}</span>
           </div>
@@ -201,7 +201,7 @@ export class TarefasModule {
     content.innerHTML = `
       <div class="form-group">
         <label class="form-label">Título</label>
-        <input class="form-input" id="tk-titulo" value="${isEdit ? (tarefa.titulo || '') : ''}" placeholder="Ex: Revisar orçamento">
+        <input class="form-input" id="tk-titulo" value="${isEdit ? (tarefa.nome || '') : ''}" placeholder="Ex: Revisar orçamento">
       </div>
       <div class="form-group">
         <label class="form-label">Descrição</label>
@@ -217,22 +217,24 @@ export class TarefasModule {
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Data</label>
-          <input class="form-input" id="tk-data" type="date" value="${isEdit && tarefa.data ? formatarDataISO(tarefa.data) : ''}">
+          <label class="form-label">Vencimento</label>
+          <input class="form-input" id="tk-data" type="date" value="${isEdit && tarefa.vencimento ? formatarDataISO(tarefa.vencimento) : ''}">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Status</label>
           <select class="form-select" id="tk-status">
-            <option value="pendente" ${!isEdit || tarefa.status === 'pendente' ? 'selected' : ''}>Pendente</option>
+            <option value="afazer" ${!isEdit || tarefa.status === 'afazer' ? 'selected' : ''}>Pendente</option>
             <option value="em_progresso" ${isEdit && tarefa.status === 'em_progresso' ? 'selected' : ''}>Em progresso</option>
             <option value="concluida" ${isEdit && tarefa.status === 'concluida' ? 'selected' : ''}>Concluída</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Projeto</label>
-          <input class="form-input" id="tk-projeto" type="number" value="${isEdit ? (tarefa.projeto_id || '') : ''}" placeholder="ID do projeto (opcional)">
+          <select class="form-select" id="tk-projeto">
+            <option value="">Nenhum</option>
+          </select>
         </div>
       </div>
       <div class="modal-actions">
@@ -243,6 +245,18 @@ export class TarefasModule {
     `;
 
     const { close } = showModal(content, { title: isEdit ? 'Editar tarefa' : 'Nova tarefa' });
+
+    get('/projetos/').then(projetos => {
+      const sel = content.querySelector('#tk-projeto');
+      const list = Array.isArray(projetos) ? projetos : (projetos.projetos || []);
+      list.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nome;
+        if (isEdit && tarefa.projeto_id == p.id) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }).catch(() => {});
 
     content.querySelector('.tk-cancel').addEventListener('click', close);
     content.querySelector('.tk-save').addEventListener('click', async () => {

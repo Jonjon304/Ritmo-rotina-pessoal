@@ -48,7 +48,7 @@ export class NotasModule {
         get('/notas/').catch(() => []),
         get('/notas/cadernos').catch(() => []),
       ]);
-      this.notas = notas.notas || notas || [];
+      this.notas = notas.dados || notas.notas || notas || [];
       this.cadernos = cadernos.cadernos || cadernos || [];
     } catch (err) {
       toast.error('Erro ao carregar notas');
@@ -122,8 +122,8 @@ export class NotasModule {
       notas = notas.filter(n => n.caderno_id === this.cadernoAtivo);
     }
 
-    const fixadas = notas.filter(n => n.fixada);
-    const outras = notas.filter(n => !n.fixada);
+    const fixadas = notas.filter(n => n.fixada === 1);
+    const outras = notas.filter(n => n.fixada !== 1);
     const ordenadas = [...fixadas, ...outras];
 
     if (ordenadas.length === 0) {
@@ -131,12 +131,12 @@ export class NotasModule {
     } else {
       ordenadas.forEach(n => {
         const card = document.createElement('div');
-        card.className = `note-card ${n.fixada ? 'pinned' : ''}`;
+        card.className = `note-card ${n.fixada === 1 ? 'pinned' : ''}`;
         card.innerHTML = `
-          ${n.fixada ? '<span class="note-pin">\uD83D\uDCCC</span>' : ''}
+          ${n.fixada === 1 ? '<span class="note-pin">\uD83D\uDCCC</span>' : ''}
           <h4 class="note-title">${escapeHtml(n.titulo || 'Sem título')}</h4>
           <p class="note-preview">${escapeHtml(n.conteudo || '').substring(0, 150)}</p>
-          <span class="note-date">${n.updated_at ? tempoRelativo(n.updated_at) : (n.created_at ? tempoRelativo(n.created_at) : '')}</span>
+          <span class="note-date">${n.atualizado_em ? tempoRelativo(n.atualizado_em) : (n.criado_em ? tempoRelativo(n.criado_em) : '')}</span>
         `;
         card.addEventListener('click', () => this.openNotaEditor(n));
         grid.appendChild(card);
@@ -166,10 +166,18 @@ export class NotasModule {
           </select>
         </div>
         <div class="form-group">
+          <label class="form-label">Projeto</label>
+          <select class="form-select" id="n-projeto">
+            <option value="">Nenhum</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
           <label class="form-label">Fixada</label>
           <select class="form-select" id="n-fixada">
-            <option value="0" ${!isEdit || !nota.fixada ? 'selected' : ''}>Não</option>
-            <option value="1" ${isEdit && nota.fixada ? 'selected' : ''}>Sim</option>
+            <option value="0" ${!isEdit || nota.fixada !== 1 ? 'selected' : ''}>Não</option>
+            <option value="1" ${isEdit && nota.fixada === 1 ? 'selected' : ''}>Sim</option>
           </select>
         </div>
       </div>
@@ -182,13 +190,27 @@ export class NotasModule {
 
     const { close } = showModal(content, { title: isEdit ? 'Editar nota' : 'Nova nota' });
 
+    get('/projetos/').then(projetos => {
+      const sel = content.querySelector('#n-projeto');
+      if (!sel) return;
+      const list = Array.isArray(projetos) ? projetos : (projetos.projetos || []);
+      list.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nome;
+        if (isEdit && nota.projeto_id == p.id) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }).catch(() => {});
+
     content.querySelector('.n-cancel').addEventListener('click', close);
     content.querySelector('.n-save').addEventListener('click', async () => {
       const data = {
         titulo: content.querySelector('#n-titulo').value,
         conteudo: content.querySelector('#n-conteudo').value,
         caderno_id: parseInt(content.querySelector('#n-caderno').value) || null,
-        fixada: content.querySelector('#n-fixada').value === '1',
+        projeto_id: parseInt(content.querySelector('#n-projeto').value) || null,
+        fixada: parseInt(content.querySelector('#n-fixada').value),
       };
       try {
         if (isEdit) await put(`/notas/${nota.id}`, data);
@@ -249,6 +271,8 @@ export class NotasModule {
         await put(`/notas/${nota.id}`, {
           titulo: editor.querySelector('#ne-titulo').value,
           conteudo: editor.querySelector('#ne-conteudo').value,
+          fixada: nota.fixada || 0,
+          projeto_id: nota.projeto_id || null,
         });
         toast.success('Nota salva');
       } catch (err) { toast.error(err.message); }

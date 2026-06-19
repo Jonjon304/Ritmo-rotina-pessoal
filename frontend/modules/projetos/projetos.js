@@ -156,11 +156,18 @@ export class ProjetosModule {
 
     switch (this.abaAtiva) {
       case 'tarefas': {
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn-ghost';
+        addBtn.textContent = '+ Vincular tarefa';
+        addBtn.style.marginBottom = '12px';
+        addBtn.addEventListener('click', () => this.openVincularModal(p, 'tarefas', body));
+        body.appendChild(addBtn);
+
         try {
           const data = await get(`/projetos/${p.id}/tarefas`).catch(() => []);
           const tarefas = data.tarefas || data || [];
           if (tarefas.length === 0) {
-            body.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDCCB</div><div class="empty-state-text">Nenhuma tarefa neste projeto</div></div>';
+            body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDCCB</div><div class="empty-state-text">Nenhuma tarefa neste projeto</div></div>';
           } else {
             const list = document.createElement('div');
             list.className = 'task-list';
@@ -169,7 +176,7 @@ export class ProjetosModule {
               item.className = `task-item ${t.status === 'concluida' ? 'completed' : ''}`;
               item.innerHTML = `
                 <span class="task-checkmark" style="${t.status === 'concluida' ? 'background:var(--success);border-color:var(--success);' : ''}">${t.status === 'concluida' ? '\u2713' : ''}</span>
-                <span class="task-name">${t.titulo || t.nome || '—'}</span>
+                <span class="task-name">${t.nome || '—'}</span>
                 <span class="badge badge-${{ alta: 'high', media: 'medium', baixa: 'low' }[t.prioridade] || 'medium'}">${t.prioridade || ''}</span>
               `;
               list.appendChild(item);
@@ -177,16 +184,23 @@ export class ProjetosModule {
             body.appendChild(list);
           }
         } catch {
-          body.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar tarefas</div></div>';
+          body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar tarefas</div></div>';
         }
         break;
       }
       case 'notas': {
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn-ghost';
+        addBtn.textContent = '+ Vincular nota';
+        addBtn.style.marginBottom = '12px';
+        addBtn.addEventListener('click', () => this.openVincularModal(p, 'notas', body));
+        body.appendChild(addBtn);
+
         try {
           const data = await get(`/projetos/${p.id}/notas`).catch(() => []);
-          const notas = data.notas || data || [];
+          const notas = data.notas || data.dados || data || [];
           if (notas.length === 0) {
-            body.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDCDD</div><div class="empty-state-text">Nenhuma nota neste projeto</div></div>';
+            body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDCDD</div><div class="empty-state-text">Nenhuma nota neste projeto</div></div>';
           } else {
             const grid = document.createElement('div');
             grid.className = 'notes-grid';
@@ -202,16 +216,23 @@ export class ProjetosModule {
             body.appendChild(grid);
           }
         } catch {
-          body.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar notas</div></div>';
+          body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar notas</div></div>';
         }
         break;
       }
       case 'metas': {
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn-ghost';
+        addBtn.textContent = '+ Vincular meta';
+        addBtn.style.marginBottom = '12px';
+        addBtn.addEventListener('click', () => this.openVincularModal(p, 'metas', body));
+        body.appendChild(addBtn);
+
         try {
           const data = await get(`/projetos/${p.id}/metas`).catch(() => []);
           const metas = data.metas || data || [];
           if (metas.length === 0) {
-            body.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\uD83C\uDFAF</div><div class="empty-state-text">Nenhuma meta neste projeto</div></div>';
+            body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\uD83C\uDFAF</div><div class="empty-state-text">Nenhuma meta neste projeto</div></div>';
           } else {
             const grid = document.createElement('div');
             grid.className = 'goals-grid';
@@ -220,7 +241,7 @@ export class ProjetosModule {
               const card = document.createElement('div');
               card.className = 'goal-card';
               card.innerHTML = `
-                <h4 class="goal-name">${m.titulo || m.nome || '—'}</h4>
+                <h4 class="goal-name">${m.nome || '—'}</h4>
                 <div class="goal-progress"><div class="goal-bar" style="--progress: ${pct}%; --accent: #f59e0b;"></div></div>
                 <span class="goal-current mono">${pct}%</span>
               `;
@@ -229,7 +250,7 @@ export class ProjetosModule {
             body.appendChild(grid);
           }
         } catch {
-          body.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar metas</div></div>';
+          body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar metas</div></div>';
         }
         break;
       }
@@ -270,10 +291,73 @@ export class ProjetosModule {
             });
           }
         } catch {
-          body.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar links</div></div>';
+          body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar links</div></div>';
         }
         break;
       }
+    }
+  }
+
+  async openVincularModal(projeto, tipo, body) {
+    const content = document.createElement('div');
+    content.innerHTML = '<p style="color:var(--text-muted);">Buscando itens sem projeto...</p>';
+    const { close } = showModal(content, { title: `Vincular ${tipo === 'tarefas' ? 'tarefa' : tipo === 'notas' ? 'nota' : 'meta'}` });
+
+    try {
+      let itens = [];
+      if (tipo === 'tarefas') {
+        const data = await get('/tarefas/');
+        const all = data.dados || data.tarefas || data || [];
+        itens = all.filter(i => !i.projeto_id).map(i => ({ id: i.id, nome: i.nome, sub: i.status }));
+      } else if (tipo === 'notas') {
+        const data = await get('/notas/');
+        const all = data.dados || data.notas || data || [];
+        itens = all.filter(i => !i.projeto_id).map(i => ({ id: i.id, nome: i.titulo, sub: '' }));
+      } else if (tipo === 'metas') {
+        const data = await get('/metas/');
+        const all = Array.isArray(data) ? data : (data.metas || data.dados || []);
+        itens = all.filter(i => !i.projeto_id).map(i => ({ id: i.id, nome: i.nome, sub: i.status || '' }));
+      }
+
+      if (itens.length === 0) {
+        content.innerHTML = '<div class="empty-state"><div class="empty-state-text">Nenhum item disponível para vincular</div></div><div class="modal-actions"><button class="btn-ghost v-cancel">Fechar</button></div>';
+        content.querySelector('.v-cancel').addEventListener('click', close);
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="vincular-list">
+          ${itens.map(i => `
+            <label class="vincular-item" style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer;border:1px solid var(--border);">
+              <input type="radio" name="vincular" value="${i.id}">
+              <span>${i.nome || '—'}</span>
+              ${i.sub ? `<span class="badge">${i.sub}</span>` : ''}
+            </label>
+          `).join('')}
+        </div>
+        <div class="modal-actions">
+          <button class="btn-ghost v-cancel">Cancelar</button>
+          <button class="btn-primary v-save" style="--accent:#f97316;">Vincular</button>
+        </div>
+      `;
+
+      content.querySelector('.v-cancel').addEventListener('click', close);
+      content.querySelector('.v-save').addEventListener('click', async () => {
+        const selected = content.querySelector('input[name="vincular"]:checked');
+        if (!selected) { toast.error('Selecione um item'); return; }
+        const id = selected.value;
+        try {
+          if (tipo === 'tarefas') await put(`/tarefas/${id}`, { projeto_id: projeto.id });
+          else if (tipo === 'notas') await put(`/notas/${id}`, { projeto_id: projeto.id });
+          else if (tipo === 'metas') await put(`/metas/${id}`, { projeto_id: projeto.id });
+          toast.success('Item vinculado');
+          close();
+          this.renderDetailTab(body);
+        } catch (err) { toast.error(err.message); }
+      });
+    } catch (err) {
+      content.innerHTML = `<div class="empty-state"><div class="empty-state-text">Erro: ${err.message}</div></div><div class="modal-actions"><button class="btn-ghost v-cancel">Fechar</button></div>`;
+      content.querySelector('.v-cancel').addEventListener('click', close);
     }
   }
 

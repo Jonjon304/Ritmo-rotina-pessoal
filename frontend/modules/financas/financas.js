@@ -3,7 +3,7 @@ import { showModal } from '../../components/modal/modal.js';
 import { toast } from '../../components/toast/toast.js';
 import { confirm } from '../../components/confirm/confirm.js';
 import { formatarMoeda } from '../../utils/formatCurrency.js';
-import { formatarDataCurta, formatarDataISO } from '../../utils/formatDate.js';
+import { formatarDataCurta, formatarDataISO, formatarMesAno } from '../../utils/formatDate.js';
 
 export class FinancasModule {
   constructor() {
@@ -13,6 +13,21 @@ export class FinancasModule {
     this.fixas = [];
     this.investimentos = [];
     this.tab = 'resumo';
+    this.mesOffset = 0;
+  }
+
+  getMesFiltro() {
+    const agora = new Date();
+    agora.setDate(1);
+    agora.setMonth(agora.getMonth() + this.mesOffset);
+    return `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  getMesLabel() {
+    const agora = new Date();
+    agora.setDate(1);
+    agora.setMonth(agora.getMonth() + this.mesOffset);
+    return formatarMesAno(agora);
   }
 
   async render(container) {
@@ -26,6 +41,11 @@ export class FinancasModule {
         <h2 class="module-header-title">Finanças</h2>
       </div>
       <div class="section-actions">
+        <div class="week-nav" style="margin:0;">
+          <button class="btn-icon" id="financas-mes-prev">&larr;</button>
+          <span class="week-label" id="financas-mes-label">${this.getMesLabel()}</span>
+          <button class="btn-icon" id="financas-mes-next">&rarr;</button>
+        </div>
         <button class="btn-ghost" id="financas-importar">Importar</button>
         <button class="btn-primary" style="--accent: #8b5cf6;" id="financas-nova">+ Nova transação</button>
       </div>
@@ -59,23 +79,42 @@ export class FinancasModule {
 
     header.querySelector('#financas-nova').addEventListener('click', () => this.openTransacaoModal());
     header.querySelector('#financas-importar').addEventListener('click', () => this.openImportModal());
+    header.querySelector('#financas-mes-prev').addEventListener('click', async () => {
+      this.mesOffset--;
+      await this.loadData();
+      this.updateMesLabel();
+      this.renderTab(document.getElementById('financas-body'));
+    });
+    header.querySelector('#financas-mes-next').addEventListener('click', async () => {
+      this.mesOffset++;
+      await this.loadData();
+      this.updateMesLabel();
+      this.renderTab(document.getElementById('financas-body'));
+    });
 
     await this.loadData();
     this.renderTab(body);
   }
 
+  updateMesLabel() {
+    const label = document.getElementById('financas-mes-label');
+    if (label) label.textContent = this.getMesLabel();
+  }
+
   async loadData() {
+    const mes = this.getMesFiltro();
+    const qs = `?mes=${mes}`;
     try {
       const [stats, transacoes, fixas, investimentos, categorias, perfis] = await Promise.all([
-        get('/financas/relatorios/stats').catch(() => ({})),
-        get('/financas/transacoes').catch(() => ([])),
+        get(`/financas/relatorios/stats${qs}`).catch(() => ({})),
+        get(`/financas/transacoes${qs}`).catch(() => ([])),
         get('/financas/fixas').catch(() => ([])),
         get('/financas/investimentos').catch(() => ([])),
         get('/financas/categorias').catch(() => ([])),
         get('/financas/perfis').catch(() => ([])),
       ]);
       this.stats = stats;
-      this.transacoes = transacoes.transacoes || transacoes || [];
+      this.transacoes = transacoes.dados || transacoes.transacoes || transacoes || [];
       this.fixas = fixas.fixas || fixas || [];
       this.investimentos = investimentos.investimentos || investimentos || [];
       this.categorias = categorias.categorias || categorias || [];
@@ -98,19 +137,20 @@ export class FinancasModule {
 
   renderResumo(body) {
     const s = this.stats || {};
+    const mesLabel = this.getMesLabel();
     const row = document.createElement('div');
     row.className = 'stats-row';
     row.innerHTML = `
       <div class="stat-card">
-        <span class="stat-label">Saldo Total</span>
+        <span class="stat-label">Saldo (${mesLabel})</span>
         <span class="stat-value mono">${formatarMoeda(s.saldo_total || 0)}</span>
       </div>
       <div class="stat-card positive">
-        <span class="stat-label">Receitas (mês)</span>
+        <span class="stat-label">Receitas (${mesLabel})</span>
         <span class="stat-value mono">${formatarMoeda(s.receitas_mes || 0)}</span>
       </div>
       <div class="stat-card negative">
-        <span class="stat-label">Despesas (mês)</span>
+        <span class="stat-label">Despesas (${mesLabel})</span>
         <span class="stat-value mono">${formatarMoeda(s.despesas_mes || 0)}</span>
       </div>
     `;

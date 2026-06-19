@@ -9,6 +9,7 @@ const DIAS_CURTOS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 export class CronogramaModule {
   constructor() {
     this.eventos = [];
+    this.tarefasCrono = [];
     this.semanaOffset = 0;
     this.selectedDate = null;
     this.view = 'semana';
@@ -61,8 +62,12 @@ export class CronogramaModule {
 
   async loadData() {
     try {
-      const data = await get('/cronograma/eventos').catch(() => []);
+      const [data, tarefasData] = await Promise.all([
+        get('/cronograma/eventos').catch(() => []),
+        get('/tarefas/').catch(() => ({ dados: [] })),
+      ]);
       this.eventos = data.eventos || data || [];
+      this.tarefasCrono = (tarefasData.dados || tarefasData.tarefas || tarefasData || []).filter(t => t.vencimento);
     } catch (err) {
       toast.error('Erro ao carregar cronograma');
     }
@@ -70,10 +75,10 @@ export class CronogramaModule {
 
   async loadDia(data) {
     try {
-      const result = await get(`/cronograma/dia/${data}`).catch(() => ({ eventos: [] }));
-      return result.eventos || result || [];
+      const result = await get(`/cronograma/dia/${data}`).catch(() => ({ eventos: [], tarefas: [], habitos: { total: 0, concluidos: 0, lista: [] } }));
+      return result;
     } catch {
-      return [];
+      return { eventos: [], tarefas: [], habitos: { total: 0, concluidos: 0, lista: [] } };
     }
   }
 
@@ -122,6 +127,20 @@ export class CronogramaModule {
         if (!eDate) return false;
         return formatarDataISO(eDate) === dateStr;
       });
+      const dayTarefas = (this.tarefasCrono || []).filter(t => {
+        return t.vencimento && formatarDataISO(t.vencimento) === dateStr;
+      });
+
+      const totalCount = dayEvents.length + dayTarefas.length;
+      const slotLimit = 4;
+      let slots = 0;
+
+      const buildSlots = (arr, accent) => {
+        return arr.slice(0, Math.max(0, slotLimit - slots)).map(item => {
+          slots++;
+          return `<div class="week-event" style="--accent: ${accent};" title="${item.prioridade ? 'Tarefa' : 'Evento'}">${item.horario_inicio || ''} ${item.nome || ''}</div>`;
+        }).join('');
+      };
 
       const day = document.createElement('div');
       day.className = `week-day ${isToday ? 'today' : ''}`;
@@ -129,10 +148,9 @@ export class CronogramaModule {
         <span class="week-day-name">${DIAS_CURTOS[i]}</span>
         <span class="week-day-num">${d.getDate()}</span>
         <div class="week-events">
-          ${dayEvents.slice(0, 4).map(e => `
-            <div class="week-event" style="--accent: #10b981;" data-id="${e.id}">${e.horario_inicio || ''} ${e.nome || ''}</div>
-          `).join('')}
-          ${dayEvents.length > 4 ? `<div style="font-size:10px;color:var(--text-muted);">+${dayEvents.length - 4} mais</div>` : ''}
+          ${buildSlots(dayEvents, '#10b981')}
+          ${buildSlots(dayTarefas, '#3b82f6')}
+          ${totalCount > slotLimit ? `<div style="font-size:10px;color:var(--text-muted);">+${totalCount - slotLimit} mais</div>` : ''}
         </div>
       `;
       day.addEventListener('click', () => {
@@ -147,7 +165,10 @@ export class CronogramaModule {
 
   async renderDia(body) {
     const dateStr = this.selectedDate || formatarDataISO(new Date());
-    const eventos = await this.loadDia(dateStr);
+    const result = await this.loadDia(dateStr);
+    const eventos = result.eventos || [];
+    const tarefas = result.tarefas || [];
+    const habitos = result.habitos || {};
 
     const nav = document.createElement('div');
     nav.className = 'week-nav';
@@ -171,23 +192,62 @@ export class CronogramaModule {
       this.renderView(body);
     });
 
-    const dia = document.createElement('div');
-    dia.className = 'dia-view';
-    if (eventos.length === 0) {
-      dia.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDCC5</div><div class="empty-state-text">Nenhum evento neste dia</div></div>';
+    const sections = document.createElement('div');
+    sections.className = 'dia-sections';
+
+    if (eventos.length === 0 && tarefas.length === 0 && (!habitos.lista || habitos.lista.length === 0)) {
+      sections.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDCC5</div><div class="empty-state-text">Nenhum evento, tarefa ou hábito neste dia</div></div>';
     } else {
-      eventos.forEach(e => {
-        const item = document.createElement('div');
-        item.className = 'dia-event-item';
-        item.innerHTML = `
-          <span class="dia-event-time">${e.horario_inicio || ''} - ${e.horario_fim || ''}</span>
-          <span class="dia-event-title">${e.nome || '—'}</span>
-        `;
-        item.addEventListener('click', () => this.openEventoModal(e));
-        dia.appendChild(item);
-      });
+      if (eventos.length > 0) {
+        const title = document.createElement('h4');
+        title.className = 'dia-section-title';
+        title.textContent = '\uD83D\uDCC5 Eventos';
+        sections.appendChild(title);
+        eventos.forEach(e => {
+          const item = document.createElement('div');
+          item.className = 'dia-event-item';
+          item.innerHTML = `
+            <span class="dia-event-time">${e.horario_inicio || ''} ${e.horario_fim ? `- ${e.horario_fim}` : ''}</span>
+            <span class="dia-event-title">${e.nome || '—'}</span>
+          `;
+          item.addEventListener('click', () => this.openEventoModal(e));
+          sections.appendChild(item);
+        });
+      }
+
+      if (tarefas.length > 0) {
+        const title = document.createElement('h4');
+        title.className = 'dia-section-title';
+        title.textContent = '\uD83D\uDCCB Tarefas com vencimento';
+        sections.appendChild(title);
+        tarefas.forEach(t => {
+          const item = document.createElement('div');
+          item.className = 'dia-event-item';
+          item.innerHTML = `
+            <span class="badge badge-${t.prioridade === 'alta' ? 'high' : t.prioridade === 'baixa' ? 'low' : 'medium'}">${t.prioridade || ''}</span>
+            <span class="dia-event-title">${t.nome || '—'}</span>
+          `;
+          sections.appendChild(item);
+        });
+      }
+
+      if (habitos.lista && habitos.lista.length > 0) {
+        const title = document.createElement('h4');
+        title.className = 'dia-section-title';
+        title.textContent = `\u2705 Hábitos (${habitos.concluidos || 0}/${habitos.total || 0})`;
+        sections.appendChild(title);
+        habitos.lista.forEach(h => {
+          const item = document.createElement('div');
+          item.className = 'dia-event-item';
+          item.innerHTML = `
+            <span style="color:${h.checked ? 'var(--success)' : 'var(--text-muted)'};">${h.checked ? '\u2713' : '\u2717'}</span>
+            <span class="dia-event-title">${h.nome || '—'}</span>
+          `;
+          sections.appendChild(item);
+        });
+      }
     }
-    body.appendChild(dia);
+    body.appendChild(sections);
   }
 
   openEventoModal(evento = null) {

@@ -24,11 +24,11 @@ function dashboard(userId) {
     return { id: h.id, nome: h.nome, feito: !!check }
   })
 
-  const metas = db.prepare('SELECT id, nome, valor_atual, valor_alvo FROM metas WHERE user_id = ? ORDER BY criado_em DESC LIMIT 5').all(userId)
+  const metas = db.prepare('SELECT id, nome, tipo, status, valor_atual, valor_alvo FROM metas WHERE user_id = ? ORDER BY criado_em DESC LIMIT 5').all(userId)
 
   const projetosAtivos = db.prepare("SELECT id, nome, cor, status FROM projetos WHERE user_id = ? AND status = 'em_andamento' ORDER BY criado_em DESC").all(userId)
 
-  const notasRecentes = db.prepare('SELECT id, titulo, atualizado_em FROM notas WHERE user_id = ? ORDER BY atualizado_em DESC LIMIT 3').all(userId)
+  const notasRecentes = db.prepare('SELECT id, titulo, fixada, atualizado_em FROM notas WHERE user_id = ? ORDER BY atualizado_em DESC LIMIT 3').all(userId)
 
   return {
     resumo: { tarefas_pendentes: tarefasPendentes, tarefas_vencendo_hoje: tarefasVencendo, receitas_mes: receitasMes, despesas_mes: despesasMes, saldo_mes: receitasMes - despesasMes },

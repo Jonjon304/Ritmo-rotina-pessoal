@@ -101,7 +101,7 @@ export class MetasModule {
             <span class="goal-type">${m.tipo || 'pessoal'}</span>
             <span class="goal-status ${m.status || 'em-progresso'}">${(m.status || 'em_progresso').replace('_', ' ')}</span>
           </div>
-          <h4 class="goal-name">${m.titulo || m.nome || '—'}</h4>
+          <h4 class="goal-name">${m.nome || '—'}</h4>
           <p class="goal-target mono">${m.tipo === 'financeira' ? formatarMoeda(m.valor_alvo || 0) : (m.valor_alvo || '—')}</p>
           <div class="goal-progress">
             <div class="goal-bar" style="--progress: ${pct}%; --accent: #f59e0b;"></div>
@@ -151,13 +151,21 @@ export class MetasModule {
           <input class="form-input" id="m-prazo" type="date" value="${isEdit && meta.data_alvo ? formatarDataISO(meta.data_alvo) : ''}">
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Status</label>
-        <select class="form-select" id="m-status">
-          <option value="em_progresso" ${!isEdit || meta.status === 'em_progresso' ? 'selected' : ''}>Em progresso</option>
-          <option value="concluida" ${isEdit && meta.status === 'concluida' ? 'selected' : ''}>Concluída</option>
-          <option value="abandonada" ${isEdit && meta.status === 'abandonada' ? 'selected' : ''}>Abandonada</option>
-        </select>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="m-status">
+            <option value="em_progresso" ${!isEdit || meta.status === 'em_progresso' ? 'selected' : ''}>Em progresso</option>
+            <option value="concluida" ${isEdit && meta.status === 'concluida' ? 'selected' : ''}>Concluída</option>
+            <option value="abandonada" ${isEdit && meta.status === 'abandonada' ? 'selected' : ''}>Abandonada</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Projeto</label>
+          <select class="form-select" id="m-projeto">
+            <option value="">Nenhum</option>
+          </select>
+        </div>
       </div>
       ${isEdit ? '<div style="margin-bottom:16px;"><button class="btn-ghost" id="m-atualizar" style="width:100%;">Atualizar progresso</button></div>' : ''}
       <div class="modal-actions">
@@ -169,6 +177,19 @@ export class MetasModule {
 
     const { close } = showModal(content, { title: isEdit ? 'Editar meta' : 'Nova meta' });
 
+    get('/projetos/').then(projetos => {
+      const sel = content.querySelector('#m-projeto');
+      if (!sel) return;
+      const list = Array.isArray(projetos) ? projetos : (projetos.projetos || []);
+      list.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nome;
+        if (isEdit && meta.projeto_id == p.id) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }).catch(() => {});
+
     content.querySelector('.m-cancel').addEventListener('click', close);
     content.querySelector('.m-save').addEventListener('click', async () => {
       const data = {
@@ -179,6 +200,7 @@ export class MetasModule {
         valor_atual: parseFloat(content.querySelector('#m-atual').value) || 0,
         data_alvo: content.querySelector('#m-prazo').value || null,
         status: content.querySelector('#m-status').value,
+        projeto_id: parseInt(content.querySelector('#m-projeto').value) || null,
       };
       try {
         if (isEdit) await put(`/metas/${meta.id}`, data);

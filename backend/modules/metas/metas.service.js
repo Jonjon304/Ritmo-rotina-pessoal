@@ -1,5 +1,5 @@
 const metasModel = require('./metas.model')
-const { validarCamposObrigatorios, sanitizarString } = require('../../utils/validate')
+const { validarCamposObrigatorios, validarEnum, sanitizarString } = require('../../utils/validate')
 
 function listar(userId, query) {
   return metasModel.listar(userId, query.projeto_id)
@@ -7,11 +7,15 @@ function listar(userId, query) {
 
 function criar(userId, dados) {
   validarCamposObrigatorios(['nome', 'valor_alvo'], dados)
+  if (dados.tipo) validarEnum(dados.tipo, ['financeira', 'pessoal'], 'tipo')
+  if (dados.status) validarEnum(dados.status, ['em_progresso', 'concluida', 'abandonada'], 'status')
   dados.nome = sanitizarString(dados.nome)
   return metasModel.criar(userId, dados)
 }
 
 function atualizar(userId, id, dados) {
+  if (dados.tipo) validarEnum(dados.tipo, ['financeira', 'pessoal'], 'tipo')
+  if (dados.status) validarEnum(dados.status, ['em_progresso', 'concluida', 'abandonada'], 'status')
   if (dados.nome) dados.nome = sanitizarString(dados.nome)
   const result = metasModel.atualizar(userId, id, dados)
   if (!result) { const e = new Error('Meta não encontrada'); e.status = 404; throw e }

@@ -28,12 +28,12 @@ function deletarCaderno(userId, id) {
 }
 
 function listarNotas(userId, filtros, limite, offset) {
-  let sql = 'SELECT id, user_id, titulo, conteudo, caderno_id, projeto_id, criado_em, atualizado_em FROM notas WHERE user_id = ?'
+  let sql = 'SELECT id, user_id, titulo, conteudo, fixada, caderno_id, projeto_id, criado_em, atualizado_em FROM notas WHERE user_id = ?'
   const params = [userId]
   if (filtros.caderno_id) { sql += ' AND caderno_id = ?'; params.push(filtros.caderno_id) }
   if (filtros.projeto_id) { sql += ' AND projeto_id = ?'; params.push(filtros.projeto_id) }
   if (filtros.busca) { sql += ' AND (titulo LIKE ? OR conteudo LIKE ?)'; params.push(`%${filtros.busca}%`, `%${filtros.busca}%`) }
-  const countSql = sql.replace('SELECT id, user_id, titulo, conteudo, caderno_id, projeto_id, criado_em, atualizado_em', 'SELECT COUNT(*) as total')
+  const countSql = sql.replace('SELECT id, user_id, titulo, conteudo, fixada, caderno_id, projeto_id, criado_em, atualizado_em', 'SELECT COUNT(*) as total')
   const total = db.prepare(countSql).get(...params).total
   sql += ' ORDER BY atualizado_em DESC LIMIT ? OFFSET ?'
   params.push(limite, offset)
@@ -46,10 +46,10 @@ function buscarNota(userId, id) {
 }
 
 function criarNota(userId, dados) {
-  const r = db.prepare("INSERT INTO notas (user_id, titulo, conteudo, caderno_id, projeto_id, atualizado_em) VALUES (?, ?, ?, ?, ?, datetime('now'))").run(
-    userId, dados.titulo || 'Sem título', dados.conteudo || '', dados.caderno_id || null, dados.projeto_id || null
+  const r = db.prepare("INSERT INTO notas (user_id, titulo, conteudo, fixada, caderno_id, projeto_id, atualizado_em) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))").run(
+    userId, dados.titulo || 'Sem título', dados.conteudo || '', dados.fixada ? 1 : 0, dados.caderno_id || null, dados.projeto_id || null
   )
-  return db.prepare('SELECT id, titulo, conteudo, caderno_id, projeto_id, criado_em, atualizado_em FROM notas WHERE id = ?').get(r.lastInsertRowid)
+  return db.prepare('SELECT id, titulo, conteudo, fixada, caderno_id, projeto_id, criado_em, atualizado_em FROM notas WHERE id = ?').get(r.lastInsertRowid)
 }
 
 function atualizarNota(userId, id, dados) {
@@ -60,6 +60,7 @@ function atualizarNota(userId, id, dados) {
   for (const c of ['titulo', 'caderno_id', 'projeto_id']) {
     if (dados[c] !== undefined) { campos.push(`${c} = ?`); valores.push(dados[c] || null) }
   }
+  if (dados.fixada !== undefined) { campos.push('fixada = ?'); valores.push(dados.fixada ? 1 : 0) }
   if (dados.conteudo !== undefined) {
     campos.push('conteudo = ?'); valores.push(dados.conteudo)
     campos.push("atualizado_em = datetime('now')")
@@ -67,7 +68,7 @@ function atualizarNota(userId, id, dados) {
   if (campos.length === 0) return nota
   valores.push(id)
   db.prepare(`UPDATE notas SET ${campos.join(', ')} WHERE id = ?`).run(...valores)
-  return db.prepare('SELECT id, titulo, conteudo, caderno_id, projeto_id, criado_em, atualizado_em FROM notas WHERE id = ?').get(id)
+  return db.prepare('SELECT id, titulo, conteudo, fixada, caderno_id, projeto_id, criado_em, atualizado_em FROM notas WHERE id = ?').get(id)
 }
 
 function deletarNota(userId, id) {
