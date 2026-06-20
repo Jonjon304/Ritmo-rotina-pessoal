@@ -224,7 +224,11 @@ export class FinancasModule {
         item.innerHTML = `
           <span class="transaction-name">${f.nome || '—'}</span>
           <span class="transaction-amount negative mono">-${formatarMoeda(f.valor || 0)}</span>
+<<<<<<< Updated upstream
           <span class="transaction-date">dia ${f.dia_mes || '?'}</span>
+=======
+          <span class="transaction-date">dia ${f.dia_mes || f.dia || '?'}</span>
+>>>>>>> Stashed changes
           <button class="btn-icon fixa-delete" data-id="${f.id}">\u2717</button>
         `;
         item.querySelector('.fixa-delete')?.addEventListener('click', async (e) => {
@@ -270,7 +274,11 @@ export class FinancasModule {
             <div style="font-weight:600;margin-bottom:4px;">${inv.nome || '—'}</div>
             <div style="font-size:12px;color:var(--text-muted);">${inv.tipo || ''}</div>
           </div>
+<<<<<<< Updated upstream
           <span class="mono" style="font-weight:700;">${formatarMoeda(inv.valor_aplicado || 0)}</span>
+=======
+          <span class="mono" style="font-weight:700;">${formatarMoeda(inv.valor_aplicado || inv.valor || 0)}</span>
+>>>>>>> Stashed changes
         `;
         item.addEventListener('click', () => this.openInvestimentoModal(inv));
         list.appendChild(item);
@@ -548,6 +556,21 @@ export class FinancasModule {
         this.renderTab(document.getElementById('financas-body'));
       } catch (err) { toast.error(err.message); }
     });
+
+    if (isEdit) {
+      content.querySelector('.c-delete')?.addEventListener('click', async () => {
+        const ok = await confirm({ title: 'Excluir categoria?', message: 'Esta ação não pode ser desfeita.', danger: true, confirmText: 'Excluir' });
+        if (ok) {
+          try {
+            await del(`/financas/categorias/${cat.id}`);
+            toast.success('Categoria excluída');
+            close();
+            await this.loadData();
+            this.renderTab(document.getElementById('financas-body'));
+          } catch (err) { toast.error(err.message); }
+        }
+      });
+    }
   }
 
   openImportModal() {
@@ -577,7 +600,7 @@ export class FinancasModule {
       if (!file) return;
 
       const formData = new FormData();
-      formData.append('arquivo', file);
+      formData.append('file', file);
 
       try {
         const result = await post('/financas/importar/csv', formData);
