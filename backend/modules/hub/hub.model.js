@@ -19,17 +19,24 @@ function dashboard(userId) {
 
   const metas = db.prepare('SELECT id, nome, tipo, status, valor_atual, valor_alvo FROM metas WHERE user_id = ? ORDER BY criado_em DESC LIMIT 5').all(userId)
 
-  const notasRecentes = db.prepare('SELECT COUNT(*) as total FROM notas WHERE user_id = ? AND atualizado_em >= date(?,"-7 days")').get(userId, hoje).total
+  const notasRecentesCount = db.prepare('SELECT COUNT(*) as total FROM notas WHERE user_id = ? AND atualizado_em >= date(?,"-7 days")').get(userId, hoje).total
   const notasFixadas = 0
 
   const notasRecentes = db.prepare('SELECT id, titulo, fixada, atualizado_em FROM notas WHERE user_id = ? ORDER BY atualizado_em DESC LIMIT 3').all(userId)
+
+  const proximoEvento = db.prepare("SELECT nome, horario_inicio FROM cronograma WHERE user_id = ? AND data >= date('now') ORDER BY data ASC, horario_inicio ASC LIMIT 1").get(userId) || null
+
+  const totalHabitos = db.prepare('SELECT COUNT(*) as total FROM habitos WHERE user_id = ?').get(userId).total
+  const habitosCheckHoje = totalHabitos > 0 ? db.prepare("SELECT COUNT(*) as total FROM habitos_checks hc JOIN habitos h ON hc.habito_id = h.id WHERE h.user_id = ? AND hc.data = date('now')").get(userId).total : 0
+  const habitosDias = db.prepare('SELECT hc.data FROM habitos_checks hc JOIN habitos h ON hc.habito_id = h.id WHERE h.user_id = ?').all(userId).map(r => r.data)
+  const maiorStreak = calcularStreak(habitosDias)
 
   return {
     financas: { saldo: receitasMes - despesasMes, receitas_mes: receitasMes, despesas_mes: despesasMes },
     tarefas: { pendentes: tarefasPendentes, hoje: tarefasHoje },
     metas: { ativas: metasAtivas, proximas: metasProximas },
     cronograma: { proximo_hora: proximoEvento?.horario_inicio || null, proximo_titulo: proximoEvento?.nome || null },
-    notas: { recentes: notasRecentes, fixadas: notasFixadas },
+    notas: { recentes_count: notasRecentesCount, fixadas: notasFixadas, recentes: notasRecentes },
     habitos: { hoje: habitosCheckHoje, total: totalHabitos, maior_streak: maiorStreak }
   }
 }
