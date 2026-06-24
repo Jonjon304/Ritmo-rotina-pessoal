@@ -81,49 +81,114 @@
 .mes-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
+  gap: 4px;
   margin-bottom: 24px;
 }
 
+.mes-header-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.mes-header-cell {
+  text-align: center;
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  padding: 8px 0;
+}
+
 .mes-cell {
-  aspect-ratio: 1;
+  aspect-ratio: 1.2;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
+  gap: 4px;
+  border-radius: var(--radius-md);
   font-size: var(--font-sm);
   color: var(--text-secondary);
   cursor: pointer;
   transition: background 150ms ease;
+  border: 1px solid transparent;
+  position: relative;
 }
 
 .mes-cell:hover {
   background: var(--bg-hover);
+  border-color: var(--border-default);
+}
+
+.mes-cell-num {
+  font-weight: 500;
+  font-size: var(--font-sm);
+  line-height: 1;
+}
+
+.mes-cell-dots {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  justify-content: center;
+  min-height: 6px;
+}
+
+.mes-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mes-dot-checked {
+  background: #06b6d4;
+}
+
+.mes-dot-pending {
+  border: 1.5px solid #06b6d4;
+  background: transparent;
+  width: 6px;
+  height: 6px;
+}
+
+.mes-dot-event {
+  background: #10b981;
 }
 
 .mes-cell.today {
-  background: var(--accent-cronograma);
+  background: var(--accent-cronograma, #10b981);
   color: #fff;
   font-weight: 600;
 }
 
-.mes-cell.has-event {
-  position: relative;
+.mes-cell.today .mes-dot-checked {
+  background: #fff;
+}
+
+.mes-cell.today .mes-dot-pending {
+  border-color: #fff;
+}
+
+.mes-cell.today .mes-dot-event {
+  background: rgba(255,255,255,0.7);
 }
 
 .mes-cell.has-event::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--accent-cronograma);
+  display: none;
 }
 
 .mes-cell.other-month {
   color: var(--text-muted);
-  opacity: 0.4;
+  opacity: 0.35;
+}
+
+.week-event-pending {
+  opacity: 0.55;
+  font-style: italic;
 }
 
 .dia-view {
@@ -192,5 +257,15 @@
   .week-event {
     font-size: 9px;
     padding: 3px 4px;
+  }
+  .mes-cell {
+    aspect-ratio: 1;
+  }
+  .mes-cell-num {
+    font-size: 11px;
+  }
+  .mes-dot {
+    width: 4px;
+    height: 4px;
   }
 }

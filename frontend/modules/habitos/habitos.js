@@ -114,12 +114,12 @@ export class HabitosModule {
           }
         } catch {}
 
-        const item = document.createElement('label');
+        const item = document.createElement('div');
         item.className = 'habit-item';
         item.innerHTML = `
           <input type="checkbox" class="habit-checkbox" ${checked ? 'checked' : ''}>
           <span class="habit-checkmark" style="--accent: #06b6d4;"></span>
-          <span class="habit-name">${h.nome || h.titulo || '—'}</span>
+          <span class="habit-name habit-name-clickable">${h.nome || h.titulo || '—'}</span>
           <span class="habit-streak">\uD83D\uDD25 ${streak} dias</span>
         `;
         item.querySelector('.habit-checkbox').addEventListener('change', async (e) => {
@@ -135,6 +135,11 @@ export class HabitosModule {
             await this.loadData();
             this.renderHabitos(document.getElementById('habitos-body'));
           } catch (err) { toast.error(err.message); }
+        });
+        item.querySelector('.habit-name-clickable').addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          this.openHabitoModal(h);
         });
         list.appendChild(item);
       });

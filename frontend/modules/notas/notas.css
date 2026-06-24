@@ -92,6 +92,32 @@
   cursor: pointer;
 }
 
+.caderno-header .btn-icon {
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-base);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.caderno-header .btn-icon:hover {
+  border-color: var(--accent-notas-bright, #ec4899);
+  color: var(--accent-notas-bright, #ec4899);
+}
+
+.category-chip.active {
+  background: rgba(236, 72, 153, 0.25) !important;
+  font-weight: 600;
+}
+
 .caderno-name {
   font-size: var(--font-md);
   font-weight: 600;

@@ -87,13 +87,22 @@ router.post('/importar/csv', requireAuth, upload.single('file'), (req, res, next
     if (!req.file) { const e = new Error('Arquivo não enviado'); e.status = 400; throw e }
     const texto = req.file.buffer.toString('utf-8')
     const linhas = parse(texto, { columns: true, skip_empty_lines: true, delimiter: [',', ';', '\t'], relax_column_count: true })
-    const preview = linhas.slice(0, 50).map(l => {
-      const data = l.Data || l.data || l.DATE || l.date || ''
+    const todas = linhas.map(l => {
+      const rawDate = l.Data || l.data || l.DATE || l.date || ''
       const nome = l.Descrição || l.Descricao || l.descrição || l.descricao || l.Description || l.description || l.Nome || l.nome || ''
-      const valor = parseFloat((l.Valor || l.valor || l.Amount || l.amount || '0').replace(',', '.'))
-      return { data, nome, valor: isNaN(valor) ? 0 : Math.abs(valor), tipo: valor >= 0 ? 'receita' : 'despesa', categoria_sugerida: '' }
+      const rawValor = (l.Valor || l.valor || l.Amount || l.amount || '0').replace(',', '.')
+      const valorNum = parseFloat(rawValor)
+      const tipo = valorNum < 0 ? 'despesa' : 'receita'
+      const valor = isNaN(valorNum) ? 0 : Math.abs(valorNum)
+      let data = rawDate.trim()
+      const brMatch = data.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/)
+      if (brMatch) {
+        const y = brMatch[3].length === 2 ? `20${brMatch[3]}` : brMatch[3]
+        data = `${y}-${brMatch[2].padStart(2, '0')}-${brMatch[1].padStart(2, '0')}`
+      }
+      return { data, nome, valor, tipo, categoria_id: null, perfil_id: null }
     })
-    res.json({ preview })
+    res.json({ preview: todas.slice(0, 50), transacoes: todas })
   } catch (e) { next(e) }
 })
 

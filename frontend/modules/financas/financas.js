@@ -60,6 +60,7 @@ export class FinancasModule {
       <button class="tab-btn-inner" data-tab="fixas">Fixas</button>
       <button class="tab-btn-inner" data-tab="investimentos">Investimentos</button>
       <button class="tab-btn-inner" data-tab="categorias">Categorias</button>
+      <button class="tab-btn-inner" data-tab="perfis">Perfis</button>
     `;
     container.appendChild(tabs);
 
@@ -132,6 +133,7 @@ export class FinancasModule {
       case 'fixas': this.renderFixas(body); break;
       case 'investimentos': this.renderInvestimentos(body); break;
       case 'categorias': this.renderCategorias(body); break;
+      case 'perfis': this.renderPerfis(body); break;
     }
   }
 
@@ -170,10 +172,12 @@ export class FinancasModule {
         const item = document.createElement('div');
         item.className = 'transaction-item';
         const isReceita = t.tipo === 'receita';
+        const perfilTag = t.perfil_nome ? `<span class="transaction-perfil">${t.perfil_icone || ''} ${t.perfil_nome}</span>` : '';
         item.innerHTML = `
           <span class="transaction-emoji">${isReceita ? '\uD83D\uDCB5' : '\uD83C\uDFE0'}</span>
           <span class="transaction-name">${t.nome || '—'}</span>
           <span class="transaction-category">${t.categoria_nome || t.categoria || ''}</span>
+          ${perfilTag}
           <span class="transaction-amount ${isReceita ? 'positive' : 'negative'} mono">${isReceita ? '+' : '-'}${formatarMoeda(t.valor || 0)}</span>
           <span class="transaction-date">${t.data ? formatarDataCurta(t.data) : ''}</span>
         `;
@@ -194,10 +198,12 @@ export class FinancasModule {
         const isReceita = t.tipo === 'receita';
         const item = document.createElement('div');
         item.className = 'transaction-item';
+        const perfilTag = t.perfil_nome ? `<span class="transaction-perfil">${t.perfil_icone || ''} ${t.perfil_nome}</span>` : '';
         item.innerHTML = `
           <span class="transaction-emoji">${isReceita ? '\uD83D\uDCB5' : '\uD83C\uDFE0'}</span>
           <span class="transaction-name">${t.nome || '—'}</span>
           <span class="transaction-category">${t.categoria_nome || t.categoria || ''}</span>
+          ${perfilTag}
           <span class="transaction-amount ${isReceita ? 'positive' : 'negative'} mono">${isReceita ? '+' : '-'}${formatarMoeda(t.valor || 0)}</span>
           <span class="transaction-date">${t.data ? formatarDataCurta(t.data) : ''}</span>
         `;
@@ -210,27 +216,31 @@ export class FinancasModule {
 
   renderFixas(body) {
     const section = document.createElement('div');
-    section.innerHTML = '<div class="section-header"><h3>Despesas Fixas</h3></div>';
+    section.innerHTML = '<div class="section-header"><h3>Receitas e Despesas Fixas</h3></div>';
     body.appendChild(section);
 
     const list = document.createElement('div');
     list.className = 'fixas-list';
     if ((this.fixas || []).length === 0) {
-      list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDCCB</div><div class="empty-state-text">Nenhuma despesa fixa</div></div>';
+      list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDCCB</div><div class="empty-state-text">Nenhuma fixa</div></div>';
     } else {
       this.fixas.forEach(f => {
+        const isReceita = f.tipo === 'receita';
+        const perfilObj = (this.perfis || []).find(p => p.id == f.perfil_id);
+        const perfilTag = perfilObj ? `<span class="transaction-perfil">${perfilObj.icone || ''} ${perfilObj.nome}</span>` : '';
         const item = document.createElement('div');
         item.className = 'fixa-item';
         item.innerHTML = `
+          <span class="transaction-emoji">${isReceita ? '\uD83D\uDCB5' : '\uD83C\uDFE0'}</span>
           <span class="transaction-name">${f.nome || '—'}</span>
-          <span class="transaction-amount negative mono">-${formatarMoeda(f.valor || 0)}</span>
-<<<<<<< Updated upstream
+          ${perfilTag}
+          <span class="transaction-amount ${isReceita ? 'positive' : 'negative'} mono">${isReceita ? '+' : '-'}${formatarMoeda(f.valor || 0)}</span>
           <span class="transaction-date">dia ${f.dia_mes || '?'}</span>
-=======
-          <span class="transaction-date">dia ${f.dia_mes || f.dia || '?'}</span>
->>>>>>> Stashed changes
           <button class="btn-icon fixa-delete" data-id="${f.id}">\u2717</button>
         `;
+        item.addEventListener('click', (e) => {
+          if (!e.target.classList.contains('fixa-delete')) this.openFixaModal(f);
+        });
         item.querySelector('.fixa-delete')?.addEventListener('click', async (e) => {
           e.stopPropagation();
           const ok = await confirm({ title: 'Excluir fixa?', message: 'Esta ação não pode ser desfeita.', danger: true, confirmText: 'Excluir' });
@@ -269,16 +279,15 @@ export class FinancasModule {
       this.investimentos.forEach(inv => {
         const item = document.createElement('div');
         item.className = 'investimento-item';
+        const perfilObj = (this.perfis || []).find(p => p.id == inv.perfil_id);
+        const perfilTag = perfilObj ? `<div style="font-size:12px;color:var(--text-muted);">${perfilObj.icone || ''} ${perfilObj.nome}</div>` : '';
         item.innerHTML = `
           <div>
             <div style="font-weight:600;margin-bottom:4px;">${inv.nome || '—'}</div>
             <div style="font-size:12px;color:var(--text-muted);">${inv.tipo || ''}</div>
+            ${perfilTag}
           </div>
-<<<<<<< Updated upstream
           <span class="mono" style="font-weight:700;">${formatarMoeda(inv.valor_aplicado || 0)}</span>
-=======
-          <span class="mono" style="font-weight:700;">${formatarMoeda(inv.valor_aplicado || inv.valor || 0)}</span>
->>>>>>> Stashed changes
         `;
         item.addEventListener('click', () => this.openInvestimentoModal(inv));
         list.appendChild(item);
@@ -308,6 +317,7 @@ export class FinancasModule {
         const chip = document.createElement('span');
         chip.className = 'category-chip';
         chip.textContent = c.nome || '—';
+        chip.addEventListener('click', () => this.openCategoriaModal(c));
         list.appendChild(chip);
       });
     }
@@ -319,6 +329,123 @@ export class FinancasModule {
     btn.textContent = '+ Nova categoria';
     btn.addEventListener('click', () => this.openCategoriaModal());
     body.appendChild(btn);
+  }
+
+  renderPerfis(body) {
+    const section = document.createElement('div');
+    section.innerHTML = '<div class="section-header"><h3>Perfis (Bancos / Contas)</h3></div>';
+    body.appendChild(section);
+
+    const list = document.createElement('div');
+    list.className = 'perfis-list';
+    if ((this.perfis || []).length === 0) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏦</div><div class="empty-state-text">Nenhum perfil cadastrado</div></div>';
+    } else {
+      this.perfis.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'perfil-item';
+        const cor = p.cor || '#8b5cf6';
+        const icone = p.icone || '🏦';
+        item.innerHTML = `
+          <span class="perfil-icon" style="background:${cor}20;color:${cor};">${icone}</span>
+          <span class="perfil-nome">${p.nome || '—'}</span>
+          <span class="perfil-cor-dot" style="background:${cor};"></span>
+          <button class="btn-icon perfil-delete" data-id="${p.id}">✗</button>
+        `;
+        item.addEventListener('click', (e) => {
+          if (!e.target.classList.contains('perfil-delete')) this.openPerfilModal(p);
+        });
+        item.querySelector('.perfil-delete')?.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const ok = await confirm({ title: 'Excluir perfil?', message: 'Esta ação não pode ser desfeita.', danger: true, confirmText: 'Excluir' });
+          if (ok) {
+            try {
+              await del(`/financas/perfis/${p.id}`);
+              toast.success('Perfil excluído');
+              await this.loadData();
+              this.renderTab(document.getElementById('financas-body'));
+            } catch (err) { toast.error(err.message); }
+          }
+        });
+        list.appendChild(item);
+      });
+    }
+    body.appendChild(list);
+
+    const btn = document.createElement('button');
+    btn.className = 'btn-primary';
+    btn.style.setProperty('--accent', '#8b5cf6');
+    btn.textContent = '+ Novo perfil';
+    btn.addEventListener('click', () => this.openPerfilModal());
+    body.appendChild(btn);
+  }
+
+  openPerfilModal(perfil = null) {
+    const isEdit = !!perfil;
+    const content = document.createElement('div');
+    content.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="p-nome" value="${isEdit ? (perfil.nome || '') : ''}" placeholder="Ex: Nubank, Itaú, Bradesco">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Ícone</label>
+          <select class="form-select" id="p-icone">
+            <option value="🏦" ${!isEdit || perfil.icone === '🏦' ? 'selected' : ''}>🏦 Banco</option>
+            <option value="💳" ${isEdit && perfil.icone === '💳' ? 'selected' : ''}>💳 Cartão</option>
+            <option value="📱" ${isEdit && perfil.icone === '📱' ? 'selected' : ''}>📱 Digital</option>
+            <option value="💰" ${isEdit && perfil.icone === '💰' ? 'selected' : ''}>💰 Poupança</option>
+            <option value="📈" ${isEdit && perfil.icone === '📈' ? 'selected' : ''}>📈 Investimento</option>
+            <option value="🏠" ${isEdit && perfil.icone === '🏠' ? 'selected' : ''}>🏠 Casa</option>
+            <option value="🤑" ${isEdit && perfil.icone === '🤑' ? 'selected' : ''}>🤑 Dinheiro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cor</label>
+          <input class="form-input" id="p-cor" type="color" value="${isEdit ? (perfil.cor || '#8b5cf6') : '#8b5cf6'}" style="height:40px;padding:4px;">
+        </div>
+      </div>
+      <div class="modal-actions">
+        ${isEdit ? '<button class="btn-danger p-delete">Excluir</button>' : ''}
+        <button class="btn-ghost p-cancel">Cancelar</button>
+        <button class="btn-primary p-save" style="--accent:#8b5cf6;">Salvar</button>
+      </div>
+    `;
+
+    const { close } = showModal(content, { title: isEdit ? 'Editar perfil' : 'Novo perfil' });
+
+    content.querySelector('.p-cancel').addEventListener('click', close);
+    content.querySelector('.p-save').addEventListener('click', async () => {
+      const data = {
+        nome: content.querySelector('#p-nome').value,
+        icone: content.querySelector('#p-icone').value,
+        cor: content.querySelector('#p-cor').value,
+      };
+      try {
+        if (isEdit) await put(`/financas/perfis/${perfil.id}`, data);
+        else await post('/financas/perfis', data);
+        toast.success(isEdit ? 'Perfil atualizado' : 'Perfil criado');
+        close();
+        await this.loadData();
+        this.renderTab(document.getElementById('financas-body'));
+      } catch (err) { toast.error(err.message); }
+    });
+
+    if (isEdit) {
+      content.querySelector('.p-delete')?.addEventListener('click', async () => {
+        const ok = await confirm({ title: 'Excluir perfil?', message: 'Esta ação não pode ser desfeita.', danger: true, confirmText: 'Excluir' });
+        if (ok) {
+          try {
+            await del(`/financas/perfis/${perfil.id}`);
+            toast.success('Perfil excluído');
+            close();
+            await this.loadData();
+            this.renderTab(document.getElementById('financas-body'));
+          } catch (err) { toast.error(err.message); }
+        }
+      });
+    }
   }
 
   openTransacaoModal(transacao = null) {
@@ -352,6 +479,13 @@ export class FinancasModule {
           ${(this.categorias || []).map(c => `<option value="${c.id}" ${isEdit && transacao.categoria_id == c.id ? 'selected' : ''}>${c.nome}</option>`).join('')}
         </select>
       </div>
+      <div class="form-group">
+        <label class="form-label">Perfil (Banco/Conta)</label>
+        <select class="form-select" id="t-perfil">
+          <option value="">Nenhum</option>
+          ${(this.perfis || []).map(p => `<option value="${p.id}" ${isEdit && transacao.perfil_id == p.id ? 'selected' : ''}>${p.icone || ''} ${p.nome}</option>`).join('')}
+        </select>
+      </div>
       <div class="modal-actions">
         ${isEdit ? '<button class="btn-danger t-delete">Excluir</button>' : ''}
         <button class="btn-ghost t-cancel">Cancelar</button>
@@ -361,6 +495,19 @@ export class FinancasModule {
 
     const { close } = showModal(content, { title: isEdit ? 'Editar transação' : 'Nova transação' });
 
+    const updateCatOptions = () => {
+      const tipo = content.querySelector('#t-tipo').value;
+      const catSelect = content.querySelector('#t-cat');
+      const currentVal = catSelect.value;
+      catSelect.innerHTML = (this.categorias || [])
+        .filter(c => c.tipo === tipo)
+        .map(c => `<option value="${c.id}">${c.nome}</option>`)
+        .join('');
+      if (catSelect.querySelector(`option[value="${currentVal}"]`)) catSelect.value = currentVal;
+    };
+    content.querySelector('#t-tipo').addEventListener('change', updateCatOptions);
+    updateCatOptions();
+
     content.querySelector('.t-cancel').addEventListener('click', close);
     content.querySelector('.t-save').addEventListener('click', async () => {
       const data = {
@@ -369,6 +516,7 @@ export class FinancasModule {
         valor: parseFloat(content.querySelector('#t-valor').value) || 0,
         data: content.querySelector('#t-data').value,
         categoria_id: parseInt(content.querySelector('#t-cat').value) || null,
+        perfil_id: parseInt(content.querySelector('#t-perfil').value) || null,
       };
       try {
         if (isEdit) await put(`/financas/transacoes/${transacao.id}`, data);
@@ -403,8 +551,8 @@ export class FinancasModule {
       <div class="form-group">
         <label class="form-label">Tipo</label>
         <select class="form-select" id="f-tipo">
-          <option value="despesa" selected>Despesa</option>
-          <option value="receita">Receita</option>
+          <option value="despesa" ${!isEdit || fixa.tipo === 'despesa' ? 'selected' : ''}>Despesa</option>
+          <option value="receita" ${isEdit && fixa.tipo === 'receita' ? 'selected' : ''}>Receita</option>
         </select>
       </div>
       <div class="form-group">
@@ -421,7 +569,21 @@ export class FinancasModule {
           <input class="form-input" id="f-dia-mes" type="number" min="1" max="31" value="${isEdit ? (fixa.dia_mes || '') : ''}" placeholder="1">
         </div>
       </div>
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <select class="form-select" id="f-cat">
+          ${(this.categorias || []).map(c => `<option value="${c.id}" ${isEdit && fixa.categoria_id == c.id ? 'selected' : ''}>${c.nome}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Perfil (Banco/Conta)</label>
+        <select class="form-select" id="f-perfil">
+          <option value="">Nenhum</option>
+          ${(this.perfis || []).map(p => `<option value="${p.id}" ${isEdit && fixa.perfil_id == p.id ? 'selected' : ''}>${p.icone || ''} ${p.nome}</option>`).join('')}
+        </select>
+      </div>
       <div class="modal-actions">
+        ${isEdit ? '<button class="btn-danger f-delete">Excluir</button>' : ''}
         <button class="btn-ghost f-cancel">Cancelar</button>
         <button class="btn-primary f-save" style="--accent:#8b5cf6;">Salvar</button>
       </div>
@@ -436,6 +598,8 @@ export class FinancasModule {
         nome: content.querySelector('#f-nome').value,
         valor: parseFloat(content.querySelector('#f-valor').value) || 0,
         dia_mes: parseInt(content.querySelector('#f-dia-mes').value) || 1,
+        categoria_id: parseInt(content.querySelector('#f-cat').value) || null,
+        perfil_id: parseInt(content.querySelector('#f-perfil').value) || null,
       };
       try {
         if (isEdit) await put(`/financas/fixas/${fixa.id}`, data);
@@ -446,6 +610,21 @@ export class FinancasModule {
         this.renderTab(document.getElementById('financas-body'));
       } catch (err) { toast.error(err.message); }
     });
+
+    if (isEdit) {
+      content.querySelector('.f-delete')?.addEventListener('click', async () => {
+        const ok = await confirm({ title: 'Excluir fixa?', message: 'Esta ação não pode ser desfeita.', danger: true, confirmText: 'Excluir' });
+        if (ok) {
+          try {
+            await del(`/financas/fixas/${fixa.id}`);
+            toast.success('Fixa excluída');
+            close();
+            await this.loadData();
+            this.renderTab(document.getElementById('financas-body'));
+          } catch (err) { toast.error(err.message); }
+        }
+      });
+    }
   }
 
   openInvestimentoModal(inv = null) {
@@ -473,6 +652,13 @@ export class FinancasModule {
           <input class="form-input" id="i-valor" type="number" step="0.01" value="${isEdit ? (inv.valor_aplicado || '') : ''}" placeholder="0.00">
         </div>
       </div>
+      <div class="form-group">
+        <label class="form-label">Perfil (Banco/Conta)</label>
+        <select class="form-select" id="i-perfil">
+          <option value="">Nenhum</option>
+          ${(this.perfis || []).map(p => `<option value="${p.id}" ${isEdit && inv.perfil_id == p.id ? 'selected' : ''}>${p.icone || ''} ${p.nome}</option>`).join('')}
+        </select>
+      </div>
       <div class="modal-actions">
         ${isEdit ? '<button class="btn-danger i-delete">Excluir</button>' : ''}
         <button class="btn-ghost i-cancel">Cancelar</button>
@@ -488,6 +674,7 @@ export class FinancasModule {
         nome: content.querySelector('#i-nome').value,
         tipo: content.querySelector('#i-tipo').value,
         valor_aplicado: parseFloat(content.querySelector('#i-valor').value) || 0,
+        perfil_id: parseInt(content.querySelector('#i-perfil').value) || null,
       };
       try {
         if (isEdit) await put(`/financas/investimentos/${inv.id}`, data);
@@ -607,14 +794,25 @@ export class FinancasModule {
         const preview = content.querySelector('#import-preview');
         preview.style.display = 'block';
         preview.innerHTML = `
-          <div style="margin-bottom:12px;font-weight:600;">${result.transacoes?.length || result.preview?.length || 0} transações encontradas</div>
+          <div style="margin-bottom:12px;font-weight:600;">${result.transacoes?.length || 0} transações encontradas</div>
           <button class="btn-primary" style="--accent:#8b5cf6;" id="import-confirm">Confirmar importação</button>
         `;
         content.querySelector('#import-confirm')?.addEventListener('click', async () => {
           try {
-            await post('/financas/importar/confirmar', { transacoes: result.transacoes || result.preview || [] });
+            await post('/financas/importar/confirmar', { transacoes: result.transacoes || [] });
             toast.success('Importação concluída');
             close();
+            const datas = (result.transacoes || []).map(t => t.data).filter(Boolean).sort();
+            if (datas.length) {
+              const primeiroMes = datas[0].substring(0, 7);
+              const mesAtual = this.getMesFiltro();
+              if (primeiroMes !== mesAtual) {
+                const [y, m] = primeiroMes.split('-').map(Number);
+                const [cy, cm] = mesAtual.split('-').map(Number);
+                this.mesOffset = (y - cy) * 12 + (m - cm);
+                this.updateMesLabel();
+              }
+            }
             await this.loadData();
             this.renderTab(document.getElementById('financas-body'));
           } catch (err) { toast.error(err.message); }

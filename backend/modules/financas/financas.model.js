@@ -68,14 +68,14 @@ function deletarCategoria(userId, id) {
 }
 
 function listarTransacoes(userId, filtros, pag, limite, offset) {
-  let sql = `SELECT t.*, c.nome as categoria_nome FROM transacoes t LEFT JOIN categorias c ON t.categoria_id = c.id WHERE t.user_id = ?`
+  let sql = `SELECT t.*, c.nome as categoria_nome, p.nome as perfil_nome, p.icone as perfil_icone, p.cor as perfil_cor FROM transacoes t LEFT JOIN categorias c ON t.categoria_id = c.id LEFT JOIN perfis p ON t.perfil_id = p.id WHERE t.user_id = ?`
   const params = [userId]
   if (filtros.mes) { sql += ' AND t.data LIKE ?'; params.push(`${filtros.mes}%`) }
   if (filtros.tipo) { sql += ' AND t.tipo = ?'; params.push(filtros.tipo) }
   if (filtros.categoria_id) { sql += ' AND t.categoria_id = ?'; params.push(filtros.categoria_id) }
   if (filtros.perfil_id) { sql += ' AND t.perfil_id = ?'; params.push(filtros.perfil_id) }
   if (filtros.busca) { sql += ' AND t.nome LIKE ?'; params.push(`%${filtros.busca}%`) }
-  const countSql = sql.replace(/SELECT t\.\*, c\.nome as categoria_nome/, 'SELECT COUNT(*) as total')
+  const countSql = sql.replace(/SELECT t\.\*, c\.nome as categoria_nome, p\.nome as perfil_nome, p\.icone as perfil_icone, p\.cor as perfil_cor/, 'SELECT COUNT(*) as total')
   const total = db.prepare(countSql).get(...params).total
   sql += ' ORDER BY t.data DESC, t.criado_em DESC LIMIT ? OFFSET ?'
   params.push(limite, offset)
@@ -160,7 +160,7 @@ function atualizarInvestimento(userId, id, dados) {
   if (!inv) return null
   const campos = []
   const valores = []
-  for (const c of ['nome', 'tipo', 'valor_aplicado', 'rendimento_acumulado', 'data_vencimento']) {
+  for (const c of ['nome', 'tipo', 'valor_aplicado', 'rendimento_acumulado', 'data_vencimento', 'perfil_id']) {
     if (dados[c] !== undefined) { campos.push(`${c} = ?`); valores.push(dados[c]) }
   }
   if (campos.length === 0) return inv

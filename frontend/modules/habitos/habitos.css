@@ -51,6 +51,17 @@
   font-weight: 500;
 }
 
+.habit-name-clickable {
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+  transition: border-color 150ms ease;
+}
+
+.habit-name-clickable:hover {
+  border-bottom-color: var(--accent-habitos, #06b6d4);
+  color: var(--accent-habitos, #06b6d4);
+}
+
 .habit-streak {
   font-size: var(--font-sm);
   color: var(--text-secondary);

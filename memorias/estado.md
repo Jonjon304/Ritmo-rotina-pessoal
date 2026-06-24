@@ -1,6 +1,6 @@
 # Estado Atual — MyFinance
 
-atualizado = 2026-06-19
+atualizado = 2026-06-24
 fase = integracao (backend + frontend integrados, servidos pelo mesmo Express)
 projeto = reconstruir do zero
 
@@ -35,7 +35,7 @@ integracoes_rejeitadas = finanças↔cronograma, habitos↔tarefas
 estrutura_pastas = hibrida (compartilhado por tipo, modulos por funcionalidade)
 auth = sessao + SQLite (express-session + sessionStore custom better-sqlite3)
 navegacao_cruzada_projetos = filtro/projeto_id (itens com projeto_id aparecem no projeto, sem projeto = soltos)
-hub_cards = saldo mes, pendentes, top3 metas, prox eventos, ultimas notas, streak, projetos ativos
+hub_cards = saldo total geral, receitas/despesas total geral, pendentes, top3 metas, prox eventos, ultimas notas, streak, projetos ativos
 layout_mobile = sidebar some, full-screen, adaptacoes por modulo
 configuracoes = perfil, aparencia, financas, cronograma, habitos, exportar, sobre
 
@@ -49,10 +49,10 @@ decisoes_totais = 60+
 
 ultima_reuniao = 2026-06-14 — decisoes estruturais: pastas, auth, navegacao cruzada, hub cards, mobile, config
 ultima_decisao = metas colunas tipo/status adicionadas, tarefas resposta paginada corrigida, projetos vincular itens, cronograma integrado com tarefas/habitos
-proxima_acao = testar interativamente no navegador, resolver bugs visuais, testar responsividade mobile
+proxima_acao = testar interativamente no navegador, resolver bugs visuais, testar responsividade mobile, adicionar view mes no cronograma
 
 pendente = testes visuais manuais, responsividade mobile, deploy
-bugs_corrigidos = exportacao URL hardcoded, dark mode sem persistencia/efeito, field mismatches front→back (6 modulos), notas fixada/datas/paginacao, hub cards mapeamento, tarefas paginacao .dados, metas tipo/status, projetos vincular itens, cronograma dia consolidado (tarefas+habitos)
-integracoes_feitas = cronograma semana com tarefas vencimento, seletor projeto nos modulos tarefas/notas/metas
+bugs_corrigidos = exportacao URL hardcoded, dark mode sem persistencia/efeito, field mismatches front→back (6 modulos), notas fixada/datas/paginacao, hub cards mapeamento, tarefas paginacao .dados, metas tipo/status, projetos vincular itens, cronograma dia consolidado, timezone formatDate, categorias click editar, fixas receitas/tipo/edit/categoria/excluir, hub vars undefined, hub notasRecentes duplicado, transacoes LEFT JOIN categoria_nome, categorias filtro por tipo, importacao CSV (tipo antes abs, data BR→ISO, campos model, transacoes completas), resumo tela principal (UI esperava data.resumo), hub cards dados aninhados (metas/cronograma/notas/habitos), perfis bancarios aba+CRUD+perfil_id, hub dashboard SQL errado (cronograma→eventos, habitos_checks→habito_checks, data→data_inicio), hub notasFixadas hardcoded 0
+integracoes_feitas = cronograma semana com tarefas vencimento + habitos checks, cronograma dia com editar/excluir/toggle habitos, seletor projeto nos modulos tarefas/notas/metas, cronograma view mes com pontos habitos (checked=cyan, pendente=contorno), habitos clicar no nome abre modal editar/excluir, semana mostra habitos pendentes (✗)
 
 snapshot_atual = nenhum

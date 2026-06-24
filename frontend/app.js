@@ -1,6 +1,6 @@
 import { get, post } from './utils/api.js';
 import { getGreeting, getModuleAccent } from './utils/helpers.js';
-import { formatarDataCompleta } from './utils/formatDate.js';
+import { formatarDataCompleta, formatarMesAno } from './utils/formatDate.js';
 import { toast } from './components/toast/toast.js';
 import { initSidebar } from './components/sidebar/sidebar.js';
 import { applyTheme, getStoredTheme } from './utils/theme.js';
@@ -71,34 +71,38 @@ async function loadHubData() {
 function renderHubCards(data) {
   hubCards.innerHTML = '';
 
-  const resumo = data.resumo || {};
-  const tarefas = data.tarefas || [];
-  const metas = data.metas || [];
-  const eventosHoje = data.eventos_hoje || [];
-  const eventosProximos = data.eventos_proximos || [];
-  const habitosHoje = data.habitos_hoje || [];
-  const notasRecentes = data.notas_recentes || [];
-  const projetosAtivos = data.projetos_ativos || [];
+  const financas = data.financas || {};
+  const tarefas = data.tarefas || {};
+  const metasData = data.metas || {};
+  const cronogramaData = data.cronograma || {};
+  const notasData = data.notas || {};
+  const habitosData = data.habitos || {};
 
-  const tarefasPendentes = resumo.tarefas_pendentes || 0;
-  const tarefasVencendoHoje = resumo.tarefas_vencendo_hoje || 0;
-  const receitasMes = resumo.receitas_mes || 0;
-  const despesasMes = resumo.despesas_mes || 0;
-  const saldoMes = resumo.saldo_mes || 0;
+  const tarefasPendentes = tarefas.pendentes || 0;
+  const tarefasVencendoHoje = tarefas.hoje || 0;
+  const receitasMes = financas.receitas_mes || 0;
+  const despesasMes = financas.despesas_mes || 0;
+  const saldoMes = financas.saldo ?? 0;
+  const financasMesLabel = financas.mes ? formatarMesAno(new Date(financas.mes + '-01')) : 'este mês';
 
-  const metasAtivas = metas.filter(m => m.valor_atual < m.valor_alvo).length;
-  const habitosFeitos = habitosHoje.filter(h => h.feito).length;
-  const habitosTotal = habitosHoje.length;
+  const metasAtivas = metasData.ativas || 0;
+  const metasTotal = (metasData.ativas || 0) + (metasData.proximas || 0);
 
-  const proxEvento = eventosProximos[0] || eventosHoje[0] || null;
-  const proxEventoHora = proxEvento?.horario_inicio || '—';
-  const proxEventoNome = proxEvento?.nome || '—';
+  const habitosFeitos = habitosData.hoje || 0;
+  const habitosTotal = habitosData.total || 0;
+
+  const proxEventoHora = cronogramaData.proximo_hora;
+  const proxEventoNome = cronogramaData.proximo_titulo;
+  const temProxEvento = !!(proxEventoHora || proxEventoNome);
+
+  const notasRecentes = notasData.recentes || [];
+  const notasCount = notasData.recentes_count || notasRecentes.length;
 
   const cards = [
     {
       module: 'financas', icon: '\uD83D\uDCB0', title: 'Finanças',
       value: `R$ ${saldoMes.toLocaleString('pt-BR')}`,
-      detail: `+${receitasMes.toLocaleString('pt-BR')} / -${despesasMes.toLocaleString('pt-BR')} este mês`,
+      detail: `+${receitasMes.toLocaleString('pt-BR')} / -${despesasMes.toLocaleString('pt-BR')} ${financasMesLabel}`,
     },
     {
       module: 'tarefas', icon: '\uD83D\uDCCB', title: 'Tarefas',
@@ -108,16 +112,16 @@ function renderHubCards(data) {
     {
       module: 'metas', icon: '\uD83C\uDFAF', title: 'Metas',
       value: `${metasAtivas} ativas`,
-      detail: `${metas.length} no total`,
+      detail: `${metasTotal} no total`,
     },
     {
       module: 'cronograma', icon: '\uD83D\uDCC5', title: 'Cronograma',
-      value: proxEvento ? `Próx: ${proxEventoHora}` : '—',
-      detail: proxEvento ? proxEventoNome : 'Nenhum evento',
+      value: temProxEvento ? `Próx: ${proxEventoHora || '—'}` : '—',
+      detail: temProxEvento ? proxEventoNome : 'Nenhum evento',
     },
     {
       module: 'notas', icon: '\uD83D\uDCDD', title: 'Notas',
-      value: `${notasRecentes.length} recentes`,
+      value: `${notasCount} recentes`,
       detail: notasRecentes[0] ? notasRecentes[0].titulo : 'Nenhuma nota',
     },
     {

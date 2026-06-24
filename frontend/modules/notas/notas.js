@@ -72,29 +72,42 @@ export class NotasModule {
     }, 300);
     searchBar.querySelector('#notas-busca').addEventListener('input', (e) => debouncedSearch(e.target.value));
 
-    if ((this.cadernos || []).length > 0) {
-      const cadernoSection = document.createElement('div');
-      cadernoSection.className = 'caderno-section';
-      cadernoSection.innerHTML = `
-        <div class="caderno-header" id="caderno-toggle">
-          <span class="caderno-name">\uD83D\uDCDC Cadernos</span>
-          <span class="caderno-count">${this.cadernos.length}</span>
-        </div>
-        <div class="categorias-list">
-          ${(this.cadernos || []).map(c => `
-            <span class="category-chip" data-caderno="${c.id}" style="cursor:pointer;background:rgba(236,72,153,0.1);color:var(--accent-notas-bright);">${c.nome || 'Sem nome'}</span>
-          `).join('')}
-        </div>
-      `;
-      body.appendChild(cadernoSection);
+    const cadernoSection = document.createElement('div');
+    cadernoSection.className = 'caderno-section';
+    cadernoSection.innerHTML = `
+      <div class="caderno-header" id="caderno-toggle">
+        <span class="caderno-name">\uD83D\uDCDC Cadernos</span>
+        <span class="caderno-count">${this.cadernos.length}</span>
+        <button class="btn-icon" id="caderno-novo" title="Novo caderno">+</button>
+      </div>
+      <div class="categorias-list">
+        <span class="category-chip${!this.cadernoAtivo ? ' active' : ''}" data-caderno="" style="cursor:pointer;background:rgba(236,72,153,0.1);color:var(--accent-notas-bright);">Todos</span>
+        ${(this.cadernos || []).map(c => `
+          <span class="category-chip${this.cadernoAtivo === c.id ? ' active' : ''}" data-caderno="${c.id}" style="cursor:pointer;background:rgba(236,72,153,0.1);color:var(--accent-notas-bright);">
+            ${c.nome || 'Sem nome'}
+            <span class="caderno-actions" data-id="${c.id}" style="margin-left:4px;opacity:0.6;font-size:11px;" title="Editar/Excluir">\u270E</span>
+          </span>
+        `).join('')}
+      </div>
+    `;
+    body.appendChild(cadernoSection);
 
-      cadernoSection.querySelectorAll('.category-chip[data-caderno]').forEach(chip => {
-        chip.addEventListener('click', () => {
-          this.cadernoAtivo = parseInt(chip.dataset.caderno);
-          this.renderNotasList(body);
-        });
+    cadernoSection.querySelector('#caderno-novo').addEventListener('click', () => this.openCadernoModal());
+
+    cadernoSection.querySelectorAll('.category-chip[data-caderno]').forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        if (e.target.classList.contains('caderno-actions')) {
+          const caderno = this.cadernos.find(c => c.id == e.target.dataset.id);
+          if (caderno) this.openCadernoModal(caderno);
+          return;
+        }
+        const val = chip.dataset.caderno;
+        this.cadernoAtivo = val ? parseInt(val) : null;
+        body.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        this.renderNotasList(body);
       });
-    }
+    });
 
     const listDiv = document.createElement('div');
     listDiv.id = 'notas-grid-container';
@@ -143,6 +156,54 @@ export class NotasModule {
       });
     }
     container.appendChild(grid);
+  }
+
+  openCadernoModal(caderno = null) {
+    const isEdit = !!caderno;
+    const content = document.createElement('div');
+    content.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Nome do caderno</label>
+        <input class="form-input" id="c-nome" value="${isEdit ? (caderno.nome || '') : ''}" placeholder="Ex: Pessoal, Trabalho...">
+      </div>
+      <div class="modal-actions">
+        ${isEdit ? '<button class="btn-danger c-delete">Excluir</button>' : ''}
+        <button class="btn-ghost c-cancel">Cancelar</button>
+        <button class="btn-primary c-save" style="--accent:#ec4899;">Salvar</button>
+      </div>
+    `;
+
+    const { close } = showModal(content, { title: isEdit ? 'Editar caderno' : 'Novo caderno' });
+
+    content.querySelector('.c-cancel').addEventListener('click', close);
+    content.querySelector('.c-save').addEventListener('click', async () => {
+      const nome = content.querySelector('#c-nome').value.trim();
+      if (!nome) { toast.error('Informe o nome'); return; }
+      try {
+        if (isEdit) await put(`/notas/cadernos/${caderno.id}`, { nome });
+        else await post('/notas/cadernos', { nome });
+        toast.success(isEdit ? 'Caderno atualizado' : 'Caderno criado');
+        close();
+        await this.loadData();
+        this.renderNotas(document.getElementById('notas-body'));
+      } catch (err) { toast.error(err.message); }
+    });
+
+    if (isEdit) {
+      content.querySelector('.c-delete')?.addEventListener('click', async () => {
+        const ok = await confirm({ title: 'Excluir caderno?', message: 'Notas deste caderno não serão excluídas, apenas perderão a vinculação.', danger: true, confirmText: 'Excluir' });
+        if (ok) {
+          try {
+            await del(`/notas/cadernos/${caderno.id}`);
+            toast.success('Caderno excluído');
+            if (this.cadernoAtivo === caderno.id) this.cadernoAtivo = null;
+            close();
+            await this.loadData();
+            this.renderNotas(document.getElementById('notas-body'));
+          } catch (err) { toast.error(err.message); }
+        }
+      });
+    }
   }
 
   openNotaModal(nota = null) {

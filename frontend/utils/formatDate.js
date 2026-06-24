@@ -10,29 +10,37 @@ const MESES_CURTOS = [
   'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
 ];
 
+function toDate(date) {
+  if (typeof date === 'string') {
+    const parts = date.split('T')[0].split('-').map(Number);
+    if (parts.length === 3) return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+  return new Date(date);
+}
+
 export function formatarDataCompleta(date) {
-  const d = new Date(date);
+  const d = toDate(date);
   return `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`;
 }
 
 export function formatarDataCurta(date) {
-  const d = new Date(date);
+  const d = toDate(date);
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
 export function formatarDataISO(date) {
-  const d = new Date(date);
+  const d = toDate(date);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 export function formatarMesAno(date) {
-  const d = new Date(date);
+  const d = toDate(date);
   return `${MESES_CURTOS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 export function tempoRelativo(date) {
   const agora = new Date();
-  const d = new Date(date);
+  const d = toDate(date);
   const diff = agora - d;
   const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
 
