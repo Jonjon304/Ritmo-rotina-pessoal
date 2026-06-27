@@ -8,3 +8,6 @@ backend/db/*.db-wal
 .DS_Store
 Thumbs.db
 *.log
+
+memorias/
+rascunho-do-projeto/
