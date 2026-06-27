@@ -122,5 +122,22 @@
 @media (max-width: 768px) {
   .goals-grid {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .goal-card {
+    padding: 16px;
+    border-radius: var(--radius-lg);
+  }
+  .goal-name {
+    font-size: var(--font-base);
+  }
+  .goal-target {
+    font-size: var(--font-xs);
+  }
+  .goal-current {
+    font-size: var(--font-sm);
+  }
+  .goal-header {
+    flex-wrap: wrap;
   }
 }

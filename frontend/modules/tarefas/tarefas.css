@@ -176,7 +176,42 @@
   .kanban-board {
     flex-direction: column;
   }
+  .kanban-column {
+    min-height: auto;
+    padding: 12px;
+  }
   .task-tags {
     display: none;
+  }
+  .lista-view-toggle {
+    flex-wrap: wrap;
+  }
+  .view-toggle-btn {
+    font-size: var(--font-xs);
+    padding: 5px 10px;
+  }
+  .task-item {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .task-name {
+    font-size: var(--font-sm);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .task-date {
+    font-size: var(--font-xs);
+  }
+  .kanban-card {
+    padding: 10px;
+  }
+  .kanban-card-title {
+    font-size: var(--font-sm);
+  }
+  .kanban-card-meta {
+    font-size: 10px;
+    flex-wrap: wrap;
   }
 }

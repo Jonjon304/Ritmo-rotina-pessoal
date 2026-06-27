@@ -146,6 +146,8 @@
 .link-item-url {
   font-size: var(--font-xs);
   color: var(--text-muted);
+  overflow-wrap: break-word;
+  word-break: break-all;
 }
 
 @media (max-width: 1024px) {
@@ -157,5 +159,37 @@
 @media (max-width: 768px) {
   .projetos-grid {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .projeto-card {
+    padding: 16px;
+    border-radius: var(--radius-lg);
+  }
+  .projeto-detail-title {
+    font-size: var(--font-lg);
+  }
+  .projeto-abas {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .projeto-abas::-webkit-scrollbar {
+    display: none;
+  }
+  .projeto-aba {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: var(--font-xs);
+  }
+  .projeto-card-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .link-item {
+    padding: 8px 12px;
+    gap: 6px;
   }
 }

@@ -58,3 +58,13 @@
   gap: 12px;
   justify-content: center;
 }
+
+@media (max-width: 480px) {
+  .confirm-box {
+    padding: 20px;
+    max-width: 100%;
+  }
+  .confirm-overlay {
+    padding: 12px;
+  }
+}

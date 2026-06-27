@@ -49,9 +49,9 @@ decisoes_totais = 60+
 
 ultima_reuniao = 2026-06-14 — decisoes estruturais: pastas, auth, navegacao cruzada, hub cards, mobile, config
 ultima_decisao = metas colunas tipo/status adicionadas, tarefas resposta paginada corrigida, projetos vincular itens, cronograma integrado com tarefas/habitos
-proxima_acao = testar interativamente no navegador, resolver bugs visuais, testar responsividade mobile
+proxima_acao = testar interativamente no navegador (375px), resolver bugs visuais restantes
 
-pendente = testes visuais manuais, responsividade mobile, deploy
+pendente = testes visuais manuais em 375px, deploy
 bugs_corrigidos = exportacao URL hardcoded, dark mode sem persistencia/efeito, field mismatches front→back (6 modulos), notas fixada/datas/paginacao, hub cards mapeamento, tarefas paginacao .dados, metas tipo/status, projetos vincular itens, cronograma dia consolidado, timezone formatDate, categorias click editar, fixas receitas/tipo/edit/categoria/excluir, hub vars undefined, hub notasRecentes duplicado, transacoes LEFT JOIN categoria_nome, categorias filtro por tipo, importacao CSV (tipo antes abs, data BR→ISO, campos model, transacoes completas), resumo tela principal (UI esperava data.resumo), hub cards dados aninhados (metas/cronograma/notas/habitos), perfis bancarios aba+CRUD+perfil_id, hub dashboard SQL errado (cronograma→eventos, habitos_checks→habito_checks, data→data_inicio), hub notasFixadas hardcoded 0, projetos botoes add quebrados (innerHTML += destruia event listeners), projetos modais read-only substituidos por edicao completa
 integracoes_feitas = cronograma semana com tarefas vencimento + habitos checks, cronograma dia com editar/excluir/toggle habitos, seletor projeto nos modulos tarefas/notas/metas, cronograma view mes com pontos habitos (checked=cyan, pendente=contorno), habitos clicar no nome abre modal editar/excluir, semana mostra habitos pendentes (✗)
 

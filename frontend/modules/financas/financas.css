@@ -206,17 +206,118 @@
 }
 
 @media (max-width: 768px) {
+  .transaction-item {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .transaction-name {
+    font-size: var(--font-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .transaction-amount {
+    min-width: auto;
+    font-size: var(--font-sm);
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
   .transaction-category {
-    display: none;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-raised);
+    color: var(--text-muted);
+    order: 5;
+    flex: 0 0 auto;
   }
 
   .transaction-perfil {
     display: none;
   }
 
+  .transaction-date {
+    font-size: 10px;
+    color: var(--text-muted);
+    order: 6;
+    flex: 0 0 auto;
+  }
+
   .perfil-icon {
     width: 30px;
     height: 30px;
     font-size: 15px;
+  }
+
+  .tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-btn-inner {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 8px 12px;
+  }
+
+  .grafico-container {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
+  .import-area {
+    padding: 24px 16px;
+  }
+
+  .fixa-item {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .fixa-item .transaction-name {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .investimento-item {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .perfil-item {
+    padding: 10px 12px;
+  }
+
+  .categorias-list {
+    gap: 6px;
+  }
+
+  .category-chip {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .transaction-emoji {
+    font-size: 16px;
+    width: 22px;
+  }
+
+  .transaction-amount {
+    font-size: var(--font-xs);
   }
 }

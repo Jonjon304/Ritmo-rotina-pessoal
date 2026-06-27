@@ -108,11 +108,25 @@
 }
 
 @media (max-width: 480px) {
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
   .modal {
     padding: 20px;
+    max-width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-height: 90vh;
   }
   .form-row {
     flex-direction: column;
     gap: 0;
+  }
+  .modal-actions {
+    flex-direction: column;
+  }
+  .modal-actions button {
+    width: 100%;
+    text-align: center;
   }
 }

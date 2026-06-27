@@ -13,7 +13,7 @@
 
 @media (max-width: 768px) {
   .main-area {
-    padding-bottom: 64px;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -333,7 +333,9 @@
 
 @media (max-width: 768px) {
   .module-header {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .module-header-title {
     font-size: var(--font-lg);
@@ -344,12 +346,48 @@
   }
   .stat-card {
     min-width: 100%;
-    padding: 16px;
+    padding: 14px 16px;
   }
   .stat-value {
     font-size: var(--font-md);
   }
   .section-actions {
-    display: none;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .section-actions .week-nav {
+    flex: 1;
+    min-width: 0;
+  }
+  .section-actions .week-nav .week-label {
+    min-width: 0;
+    font-size: var(--font-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .section-actions .btn-ghost,
+  .section-actions .btn-primary {
+    font-size: var(--font-xs);
+    padding: 6px 12px;
+  }
+  .module-body {
+    max-width: 100%;
+  }
+  .login-card {
+    padding: 28px 24px;
+  }
+  .login-title {
+    font-size: var(--font-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
   }
 }

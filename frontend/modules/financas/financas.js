@@ -43,11 +43,11 @@ export class FinancasModule {
       <div class="section-actions">
         <div class="week-nav" style="margin:0;">
           <button class="btn-icon" id="financas-mes-prev">&larr;</button>
-          <span class="week-label" id="financas-mes-label">${this.getMesLabel()}</span>
+          <span class="week-label" id="financas-mes-label" style="min-width:0;">${this.getMesLabel()}</span>
           <button class="btn-icon" id="financas-mes-next">&rarr;</button>
         </div>
+        <button class="btn-primary" style="--accent: #8b5cf6;" id="financas-nova">+ Transação</button>
         <button class="btn-ghost" id="financas-importar">Importar</button>
-        <button class="btn-primary" style="--accent: #8b5cf6;" id="financas-nova">+ Nova transação</button>
       </div>
     `;
     container.appendChild(header);
@@ -764,8 +764,8 @@ export class FinancasModule {
     const content = document.createElement('div');
     content.innerHTML = `
       <div class="import-area" id="import-drop">
-        <div style="font-size:40px;margin-bottom:12px;">\uD83D\uDCC4</div>
-        <div style="font-weight:600;margin-bottom:4px;">Arraste um CSV ou clique para selecionar</div>
+        <div style="font-size:40px;margin-bottom:12px;">📄</div>
+        <div style="font-weight:600;margin-bottom:4px;">Toque para selecionar um CSV</div>
         <div style="font-size:12px;color:var(--text-muted);">Extrato bancário em formato CSV</div>
         <input type="file" accept=".csv" id="import-file" style="display:none;">
       </div>

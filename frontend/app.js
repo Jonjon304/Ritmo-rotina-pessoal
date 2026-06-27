@@ -22,12 +22,14 @@ const greetingText = document.getElementById('greeting-text');
 const greetingDate = document.getElementById('greeting-date');
 const tabBar = document.getElementById('tab-bar');
 const mobileOverlay = document.getElementById('mobile-overlay');
+const mobileMenu = document.getElementById('mobile-menu');
 
 let currentModule = null;
 let isTransitioning = false;
 let transitionTimeout = null;
 let isAuthenticated = false;
 let sidebarControl = null;
+let mobileMenuOpen = false;
 
 const modules = {
   financas: new FinancasModule(),
@@ -183,7 +185,10 @@ function hubToModule(name) {
     hub.classList.remove('exiting');
     hub.classList.add('hidden');
 
-    document.getElementById('sidebar').classList.add('visible');
+    const sidebar = document.getElementById('sidebar');
+    if (window.innerWidth > 768) {
+      sidebar.classList.add('visible');
+    }
     activateModule(name);
 
     requestAnimationFrame(() => {
@@ -201,15 +206,19 @@ function moduleToHub() {
     clearTransition();
     moduleContent.classList.remove('visible');
     document.getElementById('sidebar').classList.remove('visible');
+    document.getElementById('sidebar').classList.remove('mobile-open');
     deactivateAllModules();
     currentModule = null;
   }
   isTransitioning = true;
+  closeMobileMenu();
 
   moduleContent.classList.remove('visible');
 
   scheduleTransition(() => {
-    document.getElementById('sidebar').classList.remove('visible');
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.remove('visible');
+    sidebar.classList.remove('mobile-open');
     deactivateAllModules();
     currentModule = null;
 
@@ -246,11 +255,7 @@ function activateModule(name) {
 
   if (sidebarControl) sidebarControl.setActive(name);
 
-  const tabBtns = tabBar.querySelectorAll('.tab-btn');
-  tabBtns.forEach(btn => {
-    if (btn.dataset.tab === name) btn.classList.add('active');
-    else if (btn.dataset.tab !== 'more') btn.classList.remove('active');
-  });
+  updateTabBarHighlight(name);
 
   const mod = modules[name];
   if (mod && mod.render) {
@@ -277,8 +282,39 @@ function goHome() {
   const homeTab = tabBar.querySelector('.tab-btn[data-tab="home"]');
   if (homeTab) homeTab.classList.add('active');
 
+  closeMobileMenu();
   moduleToHub();
   loadHubData();
+}
+
+function toggleMobileMenu() {
+  mobileMenuOpen = !mobileMenuOpen;
+  if (mobileMenuOpen) {
+    mobileMenu.classList.add('visible');
+    mobileOverlay.classList.add('visible');
+  } else {
+    closeMobileMenu();
+  }
+}
+
+function closeMobileMenu() {
+  mobileMenuOpen = false;
+  mobileMenu.classList.remove('visible');
+  mobileOverlay.classList.remove('visible');
+}
+
+function updateTabBarHighlight(name) {
+  const tabBtns = tabBar.querySelectorAll('.tab-btn');
+  const directTabs = ['home', 'financas', 'tarefas', 'metas'];
+  tabBtns.forEach(btn => {
+    if (btn.dataset.tab === name && directTabs.includes(name)) {
+      btn.classList.add('active');
+    } else if (btn.dataset.tab === 'more' && !directTabs.includes(name)) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
 }
 
 function showLogin() {
@@ -342,13 +378,25 @@ function init() {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
       if (tab === 'home') {
+        closeMobileMenu();
         goHome();
       } else if (tab === 'more') {
-        const moreMods = ['cronograma', 'notas', 'habitos', 'projetos'];
-        const next = moreMods.find(m => m !== currentModule) || moreMods[0];
-        showModule(next);
+        toggleMobileMenu();
       } else {
+        closeMobileMenu();
         showModule(tab);
+      }
+    });
+  });
+
+  mobileMenu.querySelectorAll('.mobile-menu-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mod = btn.dataset.module;
+      closeMobileMenu();
+      if (mod === 'configuracoes') {
+        showModule('configuracoes');
+      } else {
+        showModule(mod);
       }
     });
   });
@@ -356,6 +404,7 @@ function init() {
   mobileOverlay.addEventListener('click', () => {
     document.getElementById('sidebar').classList.remove('mobile-open');
     mobileOverlay.classList.remove('visible');
+    closeMobileMenu();
   });
 
   window.addEventListener('auth:logout', () => {

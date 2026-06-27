@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>MyFinance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -120,6 +120,32 @@
         <span>&#8943;</span><span>Mais</span>
       </button>
     </nav>
+
+    <div id="mobile-menu" class="mobile-menu">
+      <div class="mobile-menu-title">Módulos</div>
+      <div class="mobile-menu-items">
+        <button class="mobile-menu-item" data-module="cronograma" style="color: #10b981;">
+          <span class="mobile-menu-item-icon">&#128197;</span>
+          <span class="mobile-menu-item-label">Cronograma</span>
+        </button>
+        <button class="mobile-menu-item" data-module="notas" style="color: #ec4899;">
+          <span class="mobile-menu-item-icon">&#128221;</span>
+          <span class="mobile-menu-item-label">Notas</span>
+        </button>
+        <button class="mobile-menu-item" data-module="habitos" style="color: #06b6d4;">
+          <span class="mobile-menu-item-icon">&#128260;</span>
+          <span class="mobile-menu-item-label">Hábitos</span>
+        </button>
+        <button class="mobile-menu-item" data-module="projetos" style="color: #f97316;">
+          <span class="mobile-menu-item-icon">&#128736;&#65039;</span>
+          <span class="mobile-menu-item-label">Projetos</span>
+        </button>
+        <button class="mobile-menu-item" data-module="configuracoes" style="color: var(--text-secondary);">
+          <span class="mobile-menu-item-icon">&#9881;</span>
+          <span class="mobile-menu-item-label">Configurações</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="app.js"></script>

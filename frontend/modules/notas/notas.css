@@ -94,8 +94,8 @@
 
 .caderno-header .btn-icon {
   margin-left: auto;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-default);
   background: var(--bg-base);
@@ -137,5 +137,32 @@
 @media (max-width: 768px) {
   .notes-grid {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .note-card {
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+  }
+  .note-card:hover {
+    transform: none;
+  }
+  .note-card:active {
+    background: var(--bg-hover);
+  }
+  .note-title {
+    font-size: var(--font-sm);
+  }
+  .note-editor {
+    padding: 14px 16px;
+  }
+  .note-editor-title {
+    font-size: var(--font-md);
+  }
+  .note-editor-content {
+    min-height: 200px;
+  }
+  .caderno-header {
+    flex-wrap: wrap;
+    gap: 6px;
   }
 }

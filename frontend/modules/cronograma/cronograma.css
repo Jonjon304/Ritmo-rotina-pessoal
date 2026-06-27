@@ -243,12 +243,33 @@
 }
 
 @media (max-width: 768px) {
+  .week-nav {
+    gap: 12px;
+  }
+  .week-label {
+    min-width: 0;
+    font-size: var(--font-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    text-align: center;
+  }
   .week-grid {
     gap: 3px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
   }
   .week-day {
-    padding: 8px 4px;
+    padding: 8px 6px;
     min-height: 80px;
+    min-width: 44px;
+    border-radius: var(--radius-md);
+  }
+  .week-day-name {
+    font-size: 9px;
+    letter-spacing: 0;
   }
   .week-day-num {
     font-size: var(--font-base);
@@ -257,9 +278,21 @@
   .week-event {
     font-size: 9px;
     padding: 3px 4px;
+    border-left-width: 2px;
+  }
+  .mes-grid {
+    gap: 2px;
+  }
+  .mes-header-row {
+    gap: 2px;
+  }
+  .mes-header-cell {
+    font-size: 10px;
+    padding: 6px 0;
   }
   .mes-cell {
     aspect-ratio: 1;
+    border-radius: var(--radius-sm);
   }
   .mes-cell-num {
     font-size: 11px;
@@ -267,5 +300,41 @@
   .mes-dot {
     width: 4px;
     height: 4px;
+  }
+  .mes-dot-pending {
+    border-width: 1px;
+  }
+  .mes-cell-dots {
+    min-height: 4px;
+  }
+  .dia-view {
+    max-width: 100%;
+  }
+  .dia-event-item {
+    padding: 10px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .dia-event-time {
+    min-width: auto;
+    font-size: var(--font-xs);
+  }
+  .dia-view-header {
+    font-size: var(--font-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .week-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 6px;
+    padding-bottom: 12px;
+  }
+  .week-day {
+    min-width: 72vw;
+    scroll-snap-align: center;
+    min-height: 200px;
   }
 }

@@ -119,3 +119,55 @@
 .habit-week-day.checked {
   background: var(--accent-habitos);
 }
+
+@media (max-width: 768px) {
+  .habit-item {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .habit-name {
+    font-size: var(--font-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .habit-checkmark {
+    width: 28px;
+    height: 28px;
+  }
+  .habit-streak {
+    font-size: var(--font-xs);
+    flex-shrink: 0;
+  }
+  .heatmap-container {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  .heatmap-grid {
+    gap: 2px;
+  }
+  .heatmap-labels {
+    font-size: 9px;
+  }
+  .habit-week-bar {
+    gap: 3px;
+    margin-bottom: 16px;
+  }
+  .habit-week-day {
+    height: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heatmap-grid {
+    gap: 1px;
+  }
+  .heatmap-labels {
+    font-size: 8px;
+  }
+  .heatmap-cell {
+    width: 10px;
+    height: 10px;
+  }
+}

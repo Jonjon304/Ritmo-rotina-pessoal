@@ -95,13 +95,14 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 64px;
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
   background: var(--bg-deep);
   border-top: 1px solid var(--border-subtle);
   z-index: 100;
   justify-content: space-around;
   align-items: center;
   padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .tab-btn {
@@ -136,10 +137,32 @@
     overflow: hidden;
     z-index: 200;
     transition: none;
+    background: var(--bg-deep);
   }
   .sidebar.mobile-open {
-    width: var(--sidebar-width) !important;
-    min-width: var(--sidebar-width) !important;
+    width: 260px !important;
+    min-width: 260px !important;
+  }
+  .sidebar.mobile-open .sidebar-modules {
+    align-items: flex-start;
+    padding: 12px 16px;
+  }
+  .sidebar.mobile-open .sidebar-btn {
+    width: 100%;
+    gap: 12px;
+    flex-direction: row;
+    border-radius: var(--radius-md);
+  }
+  .sidebar.mobile-open .sidebar-btn.active {
+    border-radius: var(--radius-md);
+    box-shadow: none;
+    background: var(--bg-base);
+  }
+  .sidebar.mobile-open .sidebar-btn::after {
+    content: attr(title);
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    margin-left: 4px;
   }
   .tab-bar {
     display: flex;
