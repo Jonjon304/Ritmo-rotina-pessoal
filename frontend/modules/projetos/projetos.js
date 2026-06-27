@@ -2,7 +2,7 @@ import { get, post, put, del } from '../../utils/api.js';
 import { showModal } from '../../components/modal/modal.js';
 import { toast } from '../../components/toast/toast.js';
 import { confirm } from '../../components/confirm/confirm.js';
-import { formatarDataCurta } from '../../utils/formatDate.js';
+import { formatarDataCurta, formatarDataISO } from '../../utils/formatDate.js';
 import { formatarMoeda } from '../../utils/formatCurrency.js';
 
 export class ProjetosModule {
@@ -167,7 +167,10 @@ export class ProjetosModule {
           const data = await get(`/projetos/${p.id}/tarefas`).catch(() => []);
           const tarefas = data.tarefas || data || [];
           if (tarefas.length === 0) {
-            body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDCCB</div><div class="empty-state-text">Nenhuma tarefa neste projeto</div></div>';
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'empty-state';
+            emptyEl.innerHTML = '<div class="empty-state-icon">\uD83D\uDCCB</div><div class="empty-state-text">Nenhuma tarefa neste projeto</div>';
+            body.appendChild(emptyEl);
           } else {
             const list = document.createElement('div');
             list.className = 'task-list';
@@ -175,16 +178,36 @@ export class ProjetosModule {
               const item = document.createElement('div');
               item.className = `task-item ${t.status === 'concluida' ? 'completed' : ''}`;
               item.innerHTML = `
-                <span class="task-checkmark" style="${t.status === 'concluida' ? 'background:var(--success);border-color:var(--success);' : ''}">${t.status === 'concluida' ? '\u2713' : ''}</span>
-                <span class="task-name">${t.nome || '—'}</span>
-                <span class="badge badge-${{ alta: 'high', media: 'medium', baixa: 'low' }[t.prioridade] || 'medium'}">${t.prioridade || ''}</span>
-              `;
+                    <span class="task-checkmark" style="${t.status === 'concluida' ? 'background:var(--success);border-color:var(--success);' : ''}">${t.status === 'concluida' ? '\u2713' : ''}</span>
+                    <span class="task-name">${t.nome || '—'}</span>
+                    <span class="badge badge-${{ alta: 'high', media: 'medium', baixa: 'low' }[t.prioridade] || 'medium'}">${t.prioridade || ''}</span>
+                    <button class="btn-icon unlink-task" data-id="${t.id}" title="Desvincular">\u2717</button>
+                  `;
+              // Click on the item opens detail modal (except unlink button)
+              item.addEventListener('click', (e) => {
+                if (e.target.closest('.unlink-task')) return;
+                this.openTaskDetail(t);
+              });
+
+              // Unlink handler
+              item.querySelector('.unlink-task')?.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                try {
+                  await put(`/tarefas/${t.id}`, { projeto_id: null });
+                  toast.success('Tarefa desvinculada');
+                  this.renderDetailTab(body);
+                } catch (err) { toast.error(err.message); }
+              });
+
               list.appendChild(item);
             });
             body.appendChild(list);
           }
         } catch {
-          body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar tarefas</div></div>';
+          const errEl = document.createElement('div');
+          errEl.className = 'empty-state';
+          errEl.innerHTML = '<div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar tarefas</div>';
+          body.appendChild(errEl);
         }
         break;
       }
@@ -200,7 +223,10 @@ export class ProjetosModule {
           const data = await get(`/projetos/${p.id}/notas`).catch(() => []);
           const notas = data.notas || data.dados || data || [];
           if (notas.length === 0) {
-            body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDCDD</div><div class="empty-state-text">Nenhuma nota neste projeto</div></div>';
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'empty-state';
+            emptyEl.innerHTML = '<div class="empty-state-icon">\uD83D\uDCDD</div><div class="empty-state-text">Nenhuma nota neste projeto</div>';
+            body.appendChild(emptyEl);
           } else {
             const grid = document.createElement('div');
             grid.className = 'notes-grid';
@@ -210,13 +236,34 @@ export class ProjetosModule {
               card.innerHTML = `
                 <h4 class="note-title">${n.titulo || 'Sem título'}</h4>
                 <p class="note-preview">${(n.conteudo || '').substring(0, 150)}</p>
+                <button class="btn-icon unlink-note" data-id="${n.id}" title="Desvincular">\u2717</button>
               `;
+
+              // Click on card opens detail modal (except unlink button)
+              card.addEventListener('click', (e) => {
+                if (e.target.closest('.unlink-note')) return;
+                this.openNoteDetail(n);
+              });
+
+              // Unlink handler
+              card.querySelector('.unlink-note')?.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                try {
+                  await put(`/notas/${n.id}`, { projeto_id: null });
+                  toast.success('Nota desvinculada');
+                  this.renderDetailTab(body);
+                } catch (err) { toast.error(err.message); }
+              });
+
               grid.appendChild(card);
             });
             body.appendChild(grid);
           }
         } catch {
-          body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar notas</div></div>';
+          const errEl = document.createElement('div');
+          errEl.className = 'empty-state';
+          errEl.innerHTML = '<div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar notas</div>';
+          body.appendChild(errEl);
         }
         break;
       }
@@ -232,25 +279,49 @@ export class ProjetosModule {
           const data = await get(`/projetos/${p.id}/metas`).catch(() => []);
           const metas = data.metas || data || [];
           if (metas.length === 0) {
-            body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\uD83C\uDFAF</div><div class="empty-state-text">Nenhuma meta neste projeto</div></div>';
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'empty-state';
+            emptyEl.innerHTML = '<div class="empty-state-icon">\uD83C\uDFAF</div><div class="empty-state-text">Nenhuma meta neste projeto</div>';
+            body.appendChild(emptyEl);
           } else {
             const grid = document.createElement('div');
             grid.className = 'goals-grid';
-            metas.forEach(m => {
-              const pct = m.valor_alvo ? Math.min(100, Math.round(((m.valor_atual || 0) / m.valor_alvo) * 100)) : 0;
-              const card = document.createElement('div');
-              card.className = 'goal-card';
-              card.innerHTML = `
-                <h4 class="goal-name">${m.nome || '—'}</h4>
-                <div class="goal-progress"><div class="goal-bar" style="--progress: ${pct}%; --accent: #f59e0b;"></div></div>
-                <span class="goal-current mono">${pct}%</span>
-              `;
-              grid.appendChild(card);
-            });
+               metas.forEach(m => {
+                 const pct = m.valor_alvo ? Math.min(100, Math.round(((m.valor_atual || 0) / m.valor_alvo) * 100)) : 0;
+                 const card = document.createElement('div');
+                 card.className = 'goal-card';
+                 card.innerHTML = `
+                   <h4 class="goal-name">${m.nome || '—'}</h4>
+                   <div class="goal-progress"><div class="goal-bar" style="--progress: ${pct}%; --accent: #f59e0b;"></div></div>
+                   <span class="goal-current mono">${pct}%</span>
+                   <button class="btn-icon unlink-meta" data-id="${m.id}" title="Desvincular">\u2717</button>
+                 `;
+
+                 // Click on card opens detail modal (except unlink)
+                 card.addEventListener('click', (e) => {
+                   if (e.target.closest('.unlink-meta')) return;
+                   this.openMetaDetail(m);
+                 });
+
+                 // Unlink handler
+                 card.querySelector('.unlink-meta')?.addEventListener('click', async (e) => {
+                   e.stopPropagation();
+                   try {
+                     await put(`/metas/${m.id}`, { projeto_id: null });
+                     toast.success('Meta desvinculada');
+                     this.renderDetailTab(body);
+                   } catch (err) { toast.error(err.message); }
+                 });
+
+                 grid.appendChild(card);
+               });
             body.appendChild(grid);
           }
         } catch {
-          body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar metas</div></div>';
+          const errEl = document.createElement('div');
+          errEl.className = 'empty-state';
+          errEl.innerHTML = '<div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar metas</div>';
+          body.appendChild(errEl);
         }
         break;
       }
@@ -266,7 +337,10 @@ export class ProjetosModule {
           body.appendChild(addBtn);
 
           if (links.length === 0) {
-            body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\uD83D\uDD17</div><div class="empty-state-text">Nenhum link</div></div>';
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'empty-state';
+            emptyEl.innerHTML = '<div class="empty-state-icon">\uD83D\uDD17</div><div class="empty-state-text">Nenhum link</div>';
+            body.appendChild(emptyEl);
           } else {
             links.forEach(l => {
               const item = document.createElement('div');
@@ -291,7 +365,10 @@ export class ProjetosModule {
             });
           }
         } catch {
-          body.innerHTML += '<div class="empty-state"><div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar links</div></div>';
+          const errEl = document.createElement('div');
+          errEl.className = 'empty-state';
+          errEl.innerHTML = '<div class="empty-state-icon">\u2753</div><div class="empty-state-text">Erro ao carregar links</div>';
+          body.appendChild(errEl);
         }
         break;
       }
@@ -450,6 +527,329 @@ export class ProjetosModule {
         close();
         this.renderDetailTab(document.getElementById('projeto-detail-body'));
       } catch (err) { toast.error(err.message); }
+    });
+  }
+
+  openTaskDetail(tarefa) {
+    const content = document.createElement('div');
+    content.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Título</label>
+        <input class="form-input" id="tk-titulo" value="${tarefa.nome || ''}" placeholder="Ex: Revisar orçamento">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea class="form-textarea" id="tk-desc" placeholder="Opcional">${tarefa.descricao || ''}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prioridade</label>
+          <select class="form-select" id="tk-prio">
+            <option value="baixa" ${tarefa.prioridade === 'baixa' ? 'selected' : ''}>Baixa</option>
+            <option value="media" ${tarefa.prioridade === 'media' ? 'selected' : ''}>Média</option>
+            <option value="alta" ${tarefa.prioridade === 'alta' ? 'selected' : ''}>Alta</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vencimento</label>
+          <input class="form-input" id="tk-data" type="date" value="${tarefa.vencimento ? formatarDataISO(tarefa.vencimento) : ''}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="tk-status">
+            <option value="afazer" ${tarefa.status === 'afazer' ? 'selected' : ''}>Pendente</option>
+            <option value="em_progresso" ${tarefa.status === 'em_progresso' ? 'selected' : ''}>Em progresso</option>
+            <option value="concluida" ${tarefa.status === 'concluida' ? 'selected' : ''}>Concluída</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Projeto</label>
+          <select class="form-select" id="tk-projeto">
+            <option value="">Nenhum</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-danger tk-delete">Excluir</button>
+        <button class="btn-ghost tk-desvincular">Desvincular</button>
+        <button class="btn-ghost tk-cancel">Cancelar</button>
+        <button class="btn-primary tk-save" style="--accent:#3b82f6;">Salvar</button>
+      </div>
+    `;
+
+    const { close } = showModal(content, { title: 'Editar tarefa' });
+
+    get('/projetos/').then(projetos => {
+      const sel = content.querySelector('#tk-projeto');
+      const list = Array.isArray(projetos) ? projetos : (projetos.projetos || []);
+      list.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nome;
+        if (tarefa.projeto_id == p.id) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }).catch(() => {});
+
+    content.querySelector('.tk-cancel').addEventListener('click', close);
+    content.querySelector('.tk-save').addEventListener('click', async () => {
+      const data = {
+        nome: content.querySelector('#tk-titulo').value,
+        descricao: content.querySelector('#tk-desc').value || null,
+        prioridade: content.querySelector('#tk-prio').value,
+        vencimento: content.querySelector('#tk-data').value || null,
+        status: content.querySelector('#tk-status').value,
+        projeto_id: parseInt(content.querySelector('#tk-projeto').value) || null,
+      };
+      try {
+        await put(`/tarefas/${tarefa.id}`, data);
+        toast.success('Tarefa atualizada');
+        close();
+        this.renderDetailTab(document.getElementById('projeto-detail-body'));
+      } catch (err) { toast.error(err.message); }
+    });
+
+    content.querySelector('.tk-desvincular').addEventListener('click', async () => {
+      try {
+        await put(`/tarefas/${tarefa.id}`, { projeto_id: null });
+        toast.success('Tarefa desvinculada');
+        close();
+        this.renderDetailTab(document.getElementById('projeto-detail-body'));
+      } catch (err) { toast.error(err.message); }
+    });
+
+    content.querySelector('.tk-delete').addEventListener('click', async () => {
+      const ok = await confirm({ title: 'Excluir tarefa?', message: 'Esta ação não pode ser desfeita.', danger: true, confirmText: 'Excluir' });
+      if (ok) {
+        try {
+          await del(`/tarefas/${tarefa.id}`);
+          toast.success('Tarefa excluída');
+          close();
+          this.renderDetailTab(document.getElementById('projeto-detail-body'));
+        } catch (err) { toast.error(err.message); }
+      }
+    });
+  }
+
+  openNoteDetail(nota) {
+    const content = document.createElement('div');
+    content.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Título</label>
+        <input class="form-input" id="n-titulo" value="${nota.titulo || ''}" placeholder="Título da nota">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Conteúdo</label>
+        <textarea class="form-textarea" id="n-conteudo" style="min-height:200px;">${nota.conteudo || ''}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Caderno</label>
+          <select class="form-select" id="n-caderno">
+            <option value="">Nenhum</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Projeto</label>
+          <select class="form-select" id="n-projeto">
+            <option value="">Nenhum</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fixada</label>
+        <select class="form-select" id="n-fixada">
+          <option value="0" ${nota.fixada !== 1 ? 'selected' : ''}>Não</option>
+          <option value="1" ${nota.fixada === 1 ? 'selected' : ''}>Sim</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-danger n-delete">Excluir</button>
+        <button class="btn-ghost n-desvincular">Desvincular</button>
+        <button class="btn-ghost n-cancel">Cancelar</button>
+        <button class="btn-primary n-save" style="--accent:#ec4899;">Salvar</button>
+      </div>
+    `;
+
+    const { close } = showModal(content, { title: 'Editar nota' });
+
+    get('/projetos/').then(projetos => {
+      const sel = content.querySelector('#n-projeto');
+      const list = Array.isArray(projetos) ? projetos : (projetos.projetos || []);
+      list.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nome;
+        if (nota.projeto_id == p.id) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }).catch(() => {});
+
+    get('/notas/cadernos').then(cadernos => {
+      const sel = content.querySelector('#n-caderno');
+      if (!sel) return;
+      const list = cadernos.cadernos || cadernos || [];
+      list.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.nome;
+        if (nota.caderno_id == c.id) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }).catch(() => {});
+
+    content.querySelector('.n-cancel').addEventListener('click', close);
+    content.querySelector('.n-save').addEventListener('click', async () => {
+      const data = {
+        titulo: content.querySelector('#n-titulo').value,
+        conteudo: content.querySelector('#n-conteudo').value,
+        caderno_id: parseInt(content.querySelector('#n-caderno')?.value) || null,
+        projeto_id: parseInt(content.querySelector('#n-projeto').value) || null,
+        fixada: parseInt(content.querySelector('#n-fixada').value),
+      };
+      try {
+        await put(`/notas/${nota.id}`, data);
+        toast.success('Nota atualizada');
+        close();
+        this.renderDetailTab(document.getElementById('projeto-detail-body'));
+      } catch (err) { toast.error(err.message); }
+    });
+
+    content.querySelector('.n-desvincular').addEventListener('click', async () => {
+      try {
+        await put(`/notas/${nota.id}`, { projeto_id: null });
+        toast.success('Nota desvinculada');
+        close();
+        this.renderDetailTab(document.getElementById('projeto-detail-body'));
+      } catch (err) { toast.error(err.message); }
+    });
+
+    content.querySelector('.n-delete').addEventListener('click', async () => {
+      const ok = await confirm({ title: 'Excluir nota?', message: 'Esta ação não pode ser desfeita.', danger: true, confirmText: 'Excluir' });
+      if (ok) {
+        try {
+          await del(`/notas/${nota.id}`);
+          toast.success('Nota excluída');
+          close();
+          this.renderDetailTab(document.getElementById('projeto-detail-body'));
+        } catch (err) { toast.error(err.message); }
+      }
+    });
+  }
+
+  openMetaDetail(meta) {
+    const content = document.createElement('div');
+    content.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Nome</label>
+        <input class="form-input" id="m-nome" value="${meta.nome || ''}" placeholder="Ex: Fundo de emergência">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea class="form-textarea" id="m-desc">${meta.descricao || ''}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" id="m-tipo">
+            <option value="financeira" ${meta.tipo === 'financeira' ? 'selected' : ''}>Financeira</option>
+            <option value="pessoal" ${meta.tipo === 'pessoal' ? 'selected' : ''}>Pessoal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor alvo</label>
+          <input class="form-input" id="m-alvo" type="number" step="0.01" value="${meta.valor_alvo || ''}" placeholder="10000">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Valor atual</label>
+          <input class="form-input" id="m-atual" type="number" step="0.01" value="${meta.valor_atual || 0}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prazo</label>
+          <input class="form-input" id="m-prazo" type="date" value="${meta.data_alvo ? formatarDataISO(meta.data_alvo) : ''}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="m-status">
+            <option value="em_progresso" ${meta.status === 'em_progresso' ? 'selected' : ''}>Em progresso</option>
+            <option value="concluida" ${meta.status === 'concluida' ? 'selected' : ''}>Concluída</option>
+            <option value="abandonada" ${meta.status === 'abandonada' ? 'selected' : ''}>Abandonada</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Projeto</label>
+          <select class="form-select" id="m-projeto">
+            <option value="">Nenhum</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-danger m-delete">Excluir</button>
+        <button class="btn-ghost m-desvincular">Desvincular</button>
+        <button class="btn-ghost m-cancel">Cancelar</button>
+        <button class="btn-primary m-save" style="--accent:#f59e0b;">Salvar</button>
+      </div>
+    `;
+
+    const { close } = showModal(content, { title: 'Editar meta' });
+
+    get('/projetos/').then(projetos => {
+      const sel = content.querySelector('#m-projeto');
+      const list = Array.isArray(projetos) ? projetos : (projetos.projetos || []);
+      list.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nome;
+        if (meta.projeto_id == p.id) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }).catch(() => {});
+
+    content.querySelector('.m-cancel').addEventListener('click', close);
+    content.querySelector('.m-save').addEventListener('click', async () => {
+      const data = {
+        nome: content.querySelector('#m-nome').value,
+        descricao: content.querySelector('#m-desc').value || null,
+        tipo: content.querySelector('#m-tipo').value,
+        valor_alvo: parseFloat(content.querySelector('#m-alvo').value) || 0,
+        valor_atual: parseFloat(content.querySelector('#m-atual').value) || 0,
+        data_alvo: content.querySelector('#m-prazo').value || null,
+        status: content.querySelector('#m-status').value,
+        projeto_id: parseInt(content.querySelector('#m-projeto').value) || null,
+      };
+      try {
+        await put(`/metas/${meta.id}`, data);
+        toast.success('Meta atualizada');
+        close();
+        this.renderDetailTab(document.getElementById('projeto-detail-body'));
+      } catch (err) { toast.error(err.message); }
+    });
+
+    content.querySelector('.m-desvincular').addEventListener('click', async () => {
+      try {
+        await put(`/metas/${meta.id}`, { projeto_id: null });
+        toast.success('Meta desvinculada');
+        close();
+        this.renderDetailTab(document.getElementById('projeto-detail-body'));
+      } catch (err) { toast.error(err.message); }
+    });
+
+    content.querySelector('.m-delete').addEventListener('click', async () => {
+      const ok = await confirm({ title: 'Excluir meta?', message: 'Esta ação não pode ser desfeita.', danger: true, confirmText: 'Excluir' });
+      if (ok) {
+        try {
+          await del(`/metas/${meta.id}`);
+          toast.success('Meta excluída');
+          close();
+          this.renderDetailTab(document.getElementById('projeto-detail-body'));
+        } catch (err) { toast.error(err.message); }
+      }
     });
   }
 }

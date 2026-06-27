@@ -116,13 +116,15 @@ export class HabitosModule {
 
         const item = document.createElement('div');
         item.className = 'habit-item';
+        const cbId = `hab-cb-${h.id}`;
         item.innerHTML = `
-          <input type="checkbox" class="habit-checkbox" ${checked ? 'checked' : ''}>
-          <span class="habit-checkmark" style="--accent: #06b6d4;"></span>
+          <input type="checkbox" class="habit-checkbox" id="${cbId}" ${checked ? 'checked' : ''}>
+          <label for="${cbId}" class="habit-checkmark" style="--accent: #06b6d4;"></label>
           <span class="habit-name habit-name-clickable">${h.nome || h.titulo || '—'}</span>
           <span class="habit-streak">\uD83D\uDD25 ${streak} dias</span>
         `;
-        item.querySelector('.habit-checkbox').addEventListener('change', async (e) => {
+        const checkbox = item.querySelector('.habit-checkbox');
+        checkbox.addEventListener('change', async (e) => {
           const hoje = formatarDataISO(new Date());
           try {
             if (e.target.checked) {
@@ -135,6 +137,9 @@ export class HabitosModule {
             await this.loadData();
             this.renderHabitos(document.getElementById('habitos-body'));
           } catch (err) { toast.error(err.message); }
+        });
+        item.querySelector('.habit-checkmark').addEventListener('click', (e) => {
+          e.stopPropagation();
         });
         item.querySelector('.habit-name-clickable').addEventListener('click', (e) => {
           e.preventDefault();
