@@ -1,13 +1,1 @@
-node_modules/
 
-backend/.env
-backend/db/*.db
-backend/db/*.db-shm
-backend/db/*.db-wal
-
-.DS_Store
-Thumbs.db
-*.log
-
-memorias/
-rascunho-do-projeto/
