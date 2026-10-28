@@ -62,8 +62,3 @@ Depois acesse `http://localhost:8000`. Encerre com `Ctrl+C`.
 
 Prefira testar por HTTP, pois o comportamento de localStorage ao abrir diretamente um arquivo `file://` varia entre navegadores. O endereço local e o endereço publicado também têm armazenamentos separados.
 
-## Documentação
-
-- GitHub Pages: https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages
-- Configurar publicação: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
-- localStorage: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
