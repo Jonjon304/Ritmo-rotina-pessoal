@@ -52,7 +52,10 @@ const esc = (value) =>
       })[character]
   );
 
-const KEY = 'ritmo-v1';
+// Armazenamento e regras fixas de pontuação.
+const STORAGE_KEY = 'ritmo-v1';
+const XP_PER_TASK = 20;
+const XP_PER_REWARD = 1000;
 
 const DAY_NAMES = [
   'Domingo',
@@ -84,30 +87,31 @@ const uid = () =>
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-// Estado inicial: nenhuma tarefa cadastrada.
-const initial = () => ({
+// Novas instalações começam sem tarefas ou recompensas de exemplo.
+const createInitialState = () => ({
   version: 1,
   routineRevision: 1,
   theme: 'light',
   tasks: [],
-  rewards: [
-    {
-      id: 'sample-r1',
-      name: 'Meu hambúrguer favorito',
-      description: 'Uma pausa gostosa para celebrar a constância.'
-    },
-    {
-      id: 'sample-r2',
-      name: 'Uma hora no celular',
-      description: 'Um tempo livre para aproveitar sem pressa.'
-    }
-  ],
+  rewards: [],
   completions: [],
   redemptions: []
 });
 
-// Confere a estrutura dos dados salvos ou importados.
-function validData(data) {
+// Verifica datas de calendário sem depender da interpretação de Date.parse.
+function validDateKey(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(0);
+  date.setFullYear(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+}
+
+// Dados antigos continuam legíveis; novos backups exigem datas reais.
+function isValidData(data, { strictDates = false } = {}) {
   if (
     !data ||
     data.version !== 1 ||
@@ -123,6 +127,7 @@ function validData(data) {
     typeof value === 'string' && value.length > 0 && value.length <= max;
 
   const ids = (items) =>
+    items.every((item) => item && typeof item === 'object') &&
     new Set(items.map((item) => item.id)).size === items.length;
 
   return (
@@ -152,9 +157,11 @@ function validData(data) {
     ) &&
     data.completions.every(
       (completion) =>
+        completion && typeof completion === 'object' &&
         str(completion.taskId, 100) &&
         typeof completion.date === 'string' &&
-        /^\d{4}-\d{2}-\d{2}$/.test(completion.date)
+        /^\d{4}-\d{2}-\d{2}$/.test(completion.date) &&
+        (!strictDates || validDateKey(completion.date))
     ) &&
     new Set(
       data.completions.map(
@@ -163,11 +170,12 @@ function validData(data) {
     ).size === data.completions.length &&
     data.redemptions.every(
       (redemption) =>
+        redemption && typeof redemption === 'object' &&
         str(redemption.name, 120) &&
         typeof redemption.date === 'string' &&
         Number.isFinite(Date.parse(redemption.date))
     ) &&
-    data.completions.length * 20 >= data.redemptions.length * 1000
+    data.completions.length * XP_PER_TASK >= data.redemptions.length * XP_PER_REWARD
   );
 }
 
@@ -176,38 +184,42 @@ let state;
 let storageError = false;
 
 try {
-  const stored = localStorage.getItem(KEY);
+  const stored = localStorage.getItem(STORAGE_KEY);
 
   if (stored) {
     state = JSON.parse(stored);
 
-    if (!validData(state)) {
+    if (!isValidData(state)) {
       throw Error('Dados inválidos');
     }
   } else {
-    state = initial();
+    state = createInitialState();
   }
 } catch {
-  state = initial();
+  state = createInitialState();
   storageError = true;
 }
 
-// Limpa as tarefas anteriores uma única vez nesta atualização.
-// Novas tarefas permanecem salvas nas próximas visitas.
+// Atualiza o marcador de versão sem apagar tarefas já salvas.
 if (state.routineRevision !== 1) {
-  state.tasks = [];
   state.routineRevision = 1;
 }
 
 let page = 'rotina';
-let selected = today();
+let selectedDate = today();
 let editing = null;
 let confirmAction = null;
 let toastTimer;
 
 function persist() {
+  // Não sobrescreve dados que não puderam ser lidos; a importação pode recuperá-los.
+  if (storageError) {
+    toast('Dados locais indisponíveis. Importe um backup antes de salvar alterações.');
+    return false;
+  }
+
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     return true;
   } catch {
     toast(
@@ -218,7 +230,7 @@ function persist() {
 }
 
 function balance() {
-  return state.completions.length * 20 - state.redemptions.length * 1000;
+  return state.completions.length * XP_PER_TASK - state.redemptions.length * XP_PER_REWARD;
 }
 
 function tasksFor(date) {
@@ -227,7 +239,7 @@ function tasksFor(date) {
   );
 }
 
-function done(task, date = selected) {
+function done(task, date = selectedDate) {
   return state.completions.some(
     (completion) =>
       completion.taskId === task.id &&
@@ -289,19 +301,22 @@ function newTaskButton() {
   `;
 }
 
-function weekDates() {
-  const monday = new Date(selected);
+function visibleDates() {
+  const start = today();
+  start.setHours(12, 0, 0, 0);
+  start.setDate(start.getDate() - 1);
 
-  monday.setHours(12, 0, 0, 0);
-  monday.setDate(
-    monday.getDate() - ((monday.getDay() + 6) % 7)
-  );
-
-  return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(monday);
-    date.setDate(date.getDate() + index);
+  return Array.from({ length: 9 }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
     return date;
   });
+}
+
+function canComplete(date) {
+  const dates = visibleDates();
+  const key = dateKey(date);
+  return key === dateKey(dates[0]) || key === dateKey(dates[1]);
 }
 
 function fmtDate(date, options) {
@@ -310,17 +325,21 @@ function fmtDate(date, options) {
 
 // Tela da rotina.
 function routine() {
-  const list = tasksFor(selected);
+  const list = tasksFor(selectedDate);
   const completed = list.filter((task) => done(task)).length;
   const percentage = list.length
     ? Math.round((completed / list.length) * 100)
     : 0;
 
   const xp = balance();
-  const week = weekDates();
-  const isToday = dateKey(selected) === dateKey(today());
+  const week = visibleDates();
+  const isToday = dateKey(selectedDate) === dateKey(today());
+  const isYesterday = dateKey(selectedDate) === dateKey(week[0]);
+  const pendingYesterday = tasksFor(week[0]).filter(
+    (task) => !done(task, week[0])
+  ).length;
 
-  const dateLabel = fmtDate(selected, {
+  const dateLabel = fmtDate(selectedDate, {
     weekday: 'long',
     day: 'numeric',
     month: 'long'
@@ -366,30 +385,18 @@ function routine() {
 
     <section aria-label="Dias da semana">
       <div class="week-header">
-        <span class="section-label">Sua semana</span>
+        <span class="section-label">Sua rotina</span>
 
         <div class="week-nav">
-          <button
-            class="icon-button"
-            data-action="prev-week"
-            aria-label="Semana anterior"
-          >‹</button>
-
           ${fmtDate(week[0], {
             day: '2-digit',
             month: 'short'
           }).replace('.', '')}
           –
-          ${fmtDate(week[6], {
+          ${fmtDate(week[8], {
             day: '2-digit',
             month: 'short'
           }).replace('.', '')}
-
-          <button
-            class="icon-button"
-            data-action="next-week"
-            aria-label="Próxima semana"
-          >›</button>
 
           <button class="text-button" data-action="today">
             Hoje
@@ -403,17 +410,17 @@ function routine() {
             (date) => `
             <button
               class="day ${
-                dateKey(date) === dateKey(selected) ? 'selected' : ''
+                dateKey(date) === dateKey(selectedDate) ? 'selected' : ''
               } ${dateKey(date) === dateKey(today()) ? 'today' : ''}"
               data-date="${dateKey(date)}"
-              aria-pressed="${dateKey(date) === dateKey(selected)}"
+              aria-pressed="${dateKey(date) === dateKey(selectedDate)}"
               ${
                 dateKey(date) === dateKey(today())
                   ? 'aria-current="date"'
                   : ''
               }
             >
-              <span class="day-label">${SHORT[date.getDay()]}</span>
+              <span class="day-label">${dateKey(date) === dateKey(week[0]) ? 'Ontem' : dateKey(date) === dateKey(week[1]) ? 'Hoje' : SHORT[date.getDay()]}</span>
               <span class="day-number">
                 ${String(date.getDate()).padStart(2, '0')}
               </span>
@@ -425,9 +432,13 @@ function routine() {
     </section>
 
     ${
-      !isToday
-        ? '<p class="date-notice">Você pode editar a rotina. A conclusão fica disponível no dia atual.</p>'
-        : ''
+      isYesterday
+        ? '<p class="date-notice">Último dia para concluir as tarefas de ontem.</p>'
+        : !isToday
+          ? '<p class="date-notice">Você pode planejar a rotina. A conclusão fica disponível no dia da tarefa e no dia seguinte.</p>'
+          : pendingYesterday
+            ? `<p class="date-notice">${pendingYesterday} ${pendingYesterday === 1 ? 'tarefa de ontem ainda pode ser concluída' : 'tarefas de ontem ainda podem ser concluídas'} hoje.</p>`
+            : ''
     }
 
     <div class="periods-grid">
@@ -483,7 +494,7 @@ function routine() {
 
 function taskRow(task) {
   const completed = done(task);
-  const isToday = dateKey(selected) === dateKey(today());
+  const available = canComplete(selectedDate);
 
   return `
     <div class="task ${completed ? 'done' : ''}">
@@ -491,7 +502,7 @@ function taskRow(task) {
         class="check ${completed ? 'checked' : ''}"
         data-complete="${esc(task.id)}"
         aria-label="${completed ? 'Concluída' : 'Concluir'}: ${esc(task.name)}"
-        ${completed || !isToday ? 'disabled' : ''}
+        ${completed || !available ? 'disabled' : ''}
       >
         ${completed ? icon('check') : ''}
       </button>
@@ -570,14 +581,14 @@ function rewards() {
               <div class="reward-cost">1.000 XP</div>
 
               <button
-                class="button ${xp >= 1000 ? 'primary' : 'secondary'}"
+                class="button ${xp >= XP_PER_REWARD ? 'primary' : 'secondary'}"
                 data-redeem="${esc(reward.id)}"
-                ${xp < 1000 ? 'disabled' : ''}
+                ${xp < XP_PER_REWARD ? 'disabled' : ''}
               >
                 ${
-                  xp >= 1000
+                  xp >= XP_PER_REWARD
                     ? 'Resgatar'
-                    : `Faltam ${(1000 - xp).toLocaleString('pt-BR')} XP`
+                    : `Faltam ${(XP_PER_REWARD - xp).toLocaleString('pt-BR')} XP`
                 }
               </button>
             </article>
@@ -814,7 +825,7 @@ function openEditor(kind, id = null, period = 'manha') {
                 <option
                   value="${day}"
                   ${
-                    day === (item?.day ?? selected.getDay())
+                    day === (item?.day ?? selectedDate.getDay())
                       ? 'selected'
                       : ''
                   }
@@ -888,9 +899,9 @@ function openEditor(kind, id = null, period = 'manha') {
             (entry) => entry.id !== target.id
           );
 
-          persist();
+          const saved = persist();
           render();
-          toast('Item excluído.');
+          if (saved) toast('Item excluído.');
         }
       );
     });
@@ -960,17 +971,19 @@ $('#editor-form').addEventListener('submit', (event) => {
     list.push(item);
   }
 
-  persist();
+  const saved = persist();
   $('#editor').close();
   render();
 
-  toast(
-    id
-      ? 'Alterações salvas.'
-      : kind === 'task'
-        ? 'Nova tarefa adicionada.'
-        : 'Sua recompensa foi criada.'
-  );
+  if (saved) {
+    toast(
+      id
+        ? 'Alterações salvas.'
+        : kind === 'task'
+          ? 'Nova tarefa adicionada.'
+          : 'Sua recompensa foi criada.'
+    );
+  }
 });
 
 $('#editor-form').addEventListener('input', () => {
@@ -1025,7 +1038,7 @@ document.addEventListener('click', (event) => {
   }
 
   if (button.dataset.date) {
-    selected = new Date(button.dataset.date + 'T12:00:00');
+    selectedDate = new Date(button.dataset.date + 'T12:00:00');
     render();
   }
 
@@ -1045,17 +1058,17 @@ document.addEventListener('click', (event) => {
     if (
       task &&
       !done(task) &&
-      dateKey(selected) === dateKey(today()) &&
-      tasksFor(selected).includes(task)
+      canComplete(selectedDate) &&
+      tasksFor(selectedDate).includes(task)
     ) {
       state.completions.push({
         taskId: task.id,
-        date: dateKey(selected)
+        date: dateKey(selectedDate)
       });
 
-      persist();
+      const saved = persist();
       render();
-      toast('+20 XP! Mais um passo na sua rotina.');
+      if (saved) toast('+20 XP! Mais um passo na sua rotina.');
     }
   }
 
@@ -1064,12 +1077,12 @@ document.addEventListener('click', (event) => {
       (entry) => entry.id === button.dataset.redeem
     );
 
-    if (reward && balance() >= 1000) {
+    if (reward && balance() >= XP_PER_REWARD) {
       askConfirm(
         'Resgatar recompensa?',
         `Você vai usar 1.000 XP para resgatar “${reward.name}”.`,
         () => {
-          if (balance() < 1000) {
+          if (balance() < XP_PER_REWARD) {
             return toast('Saldo insuficiente.');
           }
 
@@ -1078,10 +1091,10 @@ document.addEventListener('click', (event) => {
             date: new Date().toISOString()
           });
 
-          persist();
+          const saved = persist();
           render();
 
-          toast('Recompensa resgatada. Aproveite sua conquista!');
+          if (saved) toast('Recompensa resgatada. Aproveite sua conquista!');
         }
       );
     }
@@ -1098,15 +1111,7 @@ document.addEventListener('click', (event) => {
   }
 
   if (action === 'today') {
-    selected = today();
-    render();
-  }
-
-  if (action === 'prev-week' || action === 'next-week') {
-    selected.setDate(
-      selected.getDate() + (action === 'prev-week' ? -7 : 7)
-    );
-
+    selectedDate = today();
     render();
   }
 
@@ -1209,15 +1214,15 @@ $('#import-file').addEventListener('change', async (event) => {
       (await file.text()).replace(/^\uFEFF/, '')
     );
 
-    if (!validData(data)) {
+    if (!isValidData(data, { strictDates: true })) {
       throw Error('invalid');
     }
 
     const clean = cleanBackup(data);
 
     const xp =
-      clean.completions.length * 20 -
-      clean.redemptions.length * 1000;
+      clean.completions.length * XP_PER_TASK -
+      clean.redemptions.length * XP_PER_REWARD;
 
     askConfirm(
       'Importar backup?',
@@ -1228,7 +1233,7 @@ $('#import-file').addEventListener('change', async (event) => {
       )} XP\n\nEste backup substituirá os dados atuais. Exporte antes se quiser mantê-los.`,
       () => {
         try {
-          localStorage.setItem(KEY, JSON.stringify(clean));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
         } catch {
           return backupStatus(
             'Não foi possível salvar o backup. Os dados atuais foram mantidos.',
@@ -1237,8 +1242,9 @@ $('#import-file').addEventListener('change', async (event) => {
         }
 
         state = clean;
+        storageError = false;
         applyTheme();
-        selected = today();
+        selectedDate = today();
 
         backupFeedback = 'Backup importado com sucesso.';
         backupError = false;
@@ -1277,19 +1283,20 @@ let lastDay = dateKey(today());
 setInterval(() => {
   if (lastDay !== dateKey(today())) {
     lastDay = dateKey(today());
-    selected = today();
+    selectedDate = today();
     render();
   }
 }, 30000);
 
 // Atualiza a interface quando outra aba altera os dados.
 window.addEventListener('storage', (event) => {
-  if (event.key === KEY && event.newValue) {
+  if (event.key === STORAGE_KEY && event.newValue) {
     try {
       const data = JSON.parse(event.newValue);
 
-      if (validData(data)) {
+      if (isValidData(data)) {
         state = data;
+        storageError = false;
         applyTheme();
         render();
       }

@@ -1,37 +1,59 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Sua rotina, suas tarefas e suas recompensas em um só lugar.">
-<title>Ritmo — minha rotina</title>
-<link rel="stylesheet" href="style.css?v=2"><script src="app.js?v=3" defer></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Sua rotina, suas tarefas e suas recompensas em um só lugar.">
+  <title>Ritmo — minha rotina</title>
+  <link rel="stylesheet" href="style.css?v=4">
+  <script src="app.js?v=5" defer></script>
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <a class="brand" href="#rotina" data-page="rotina" aria-label="Ritmo — minha rotina"><span class="brand-icon">r<span>·</span></span>ritmo<span class="brand-dot">.</span></a>
-    <nav aria-label="Navegação principal">
-      <button data-page="rotina" class="nav active"><span data-icon="layout"></span>Minha rotina</button>
-      <button data-page="recompensas" class="nav"><span data-icon="gift"></span>Recompensas</button>
-      <button data-page="configuracoes" class="nav"><span data-icon="settings"></span>Configurações</button>
-    </nav>
-    <div class="sidebar-bottom"><button class="theme-toggle" aria-label="Ativar tema escuro"><span data-icon="moon"></span>Tema escuro</button><p class="local-note"><span class="local-dot"></span>Dados salvos no navegador</p></div>
-  </aside>
-  <div class="workspace"><main id="main"></main></div>
-</div>
-<dialog id="editor">
-  <form id="editor-form">
-    <div class="modal-heading"><div><p class="eyebrow" id="modal-eyebrow">SUA ROTINA</p><h2 id="modal-title">Nova tarefa</h2></div><button type="button" class="icon-button close-modal" aria-label="Fechar">×</button></div>
-    <div id="form-fields"></div>
-    <div class="modal-actions"><button type="button" class="button secondary close-modal">Cancelar</button><button type="submit" class="button primary">Salvar</button></div>
-  </form>
-</dialog>
-<dialog id="confirmation">
-  <div class="modal-heading"><h2 id="confirm-title">Confirmar</h2><button class="icon-button" id="confirm-close" aria-label="Fechar">×</button></div>
-  <p id="confirm-description"></p>
-  <div class="modal-actions"><button class="button secondary" id="confirm-cancel">Cancelar</button><button class="button primary" id="confirm-yes">Confirmar</button></div>
-</dialog>
-<div id="toast" role="status" aria-live="polite"></div>
-<input hidden type="file" accept="application/json,.json" id="import-file" aria-label="Selecionar backup do Ritmo" tabindex="-1">
+  <div class="app">
+    <aside class="sidebar">
+      <a class="brand" href="#rotina" data-page="rotina" aria-label="Ritmo — minha rotina">
+        <span class="brand-icon">r<span>·</span></span>ritmo<span class="brand-dot">.</span>
+      </a>
+      <nav aria-label="Navegação principal">
+        <button data-page="rotina" class="nav active"><span data-icon="layout"></span>Minha rotina</button>
+        <button data-page="recompensas" class="nav"><span data-icon="gift"></span>Recompensas</button>
+        <button data-page="configuracoes" class="nav"><span data-icon="settings"></span>Configurações</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="theme-toggle" aria-label="Ativar tema escuro"><span data-icon="moon"></span>Tema escuro</button>
+        <p class="local-note"><span class="local-dot"></span>Dados salvos no navegador</p>
+      </div>
+    </aside>
+    <div class="workspace"><main id="main"></main></div>
+  </div>
+
+  <dialog id="editor">
+    <form id="editor-form">
+      <div class="modal-heading">
+        <div><p class="eyebrow" id="modal-eyebrow">SUA ROTINA</p><h2 id="modal-title">Nova tarefa</h2></div>
+        <button type="button" class="icon-button close-modal" aria-label="Fechar">×</button>
+      </div>
+      <div id="form-fields"></div>
+      <div class="modal-actions">
+        <button type="button" class="button secondary close-modal">Cancelar</button>
+        <button type="submit" class="button primary">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="confirmation">
+    <div class="modal-heading">
+      <h2 id="confirm-title">Confirmar</h2>
+      <button class="icon-button" id="confirm-close" aria-label="Fechar">×</button>
+    </div>
+    <p id="confirm-description"></p>
+    <div class="modal-actions">
+      <button class="button secondary" id="confirm-cancel">Cancelar</button>
+      <button class="button primary" id="confirm-yes">Confirmar</button>
+    </div>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <input hidden type="file" accept="application/json,.json" id="import-file" aria-label="Selecionar backup do Ritmo" tabindex="-1">
 </body>
 </html>
